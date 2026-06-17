@@ -54,6 +54,3 @@ def find_crawl_by_domain(domain: str, df: pd.DataFrame):
     ].iloc[0]
 
 
-df = crawl_table()
-crawl_id = find_crawl_by_domain("mrshsfishandchips.ca", df)
-print(crawl_id)

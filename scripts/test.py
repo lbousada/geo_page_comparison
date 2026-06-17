@@ -5,9 +5,10 @@ from pathlib import Path
 import pandas as pd
 
 SF_CLI = r"C:\Program Files (x86)\Screaming Frog SEO Spider\ScreamingFrogSEOSpiderCli.exe"
+SF_CONFIG = r"C:\Users\lbousada\.ScreamingFrogSEOSpider\cc_page_only.seospiderconfig"
 
 
-def run_crawl(url: str) -> dict[str, pd.DataFrame]:
+def run_crawl(url: str) -> pd.DataFrame:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
 
@@ -15,36 +16,46 @@ def run_crawl(url: str) -> dict[str, pd.DataFrame]:
             SF_CLI,
             "--headless",
             "--crawl", url,
+            "--config", SF_CONFIG,
             "--output-folder", str(tmp_path),
-            "--export-tabs", "Images:All,Internal:All,Page Titles:All,Content:Semantically Similar", 
+            "--export-tabs", "Internal:All",
             "--overwrite",
         ]
 
         subprocess.run(cmd, check=True)
 
-        return {
-            csv_file.stem: pd.read_csv(csv_file)
-            for csv_file in tmp_path.rglob("*.csv")
-        }
+        csv_files = list(tmp_path.rglob("*.csv"))
+        internal_csv = next(
+            (csv_file for csv_file in csv_files if "internal" in csv_file.stem.lower()),
+            None,
+        )
+
+        if internal_csv is None:
+            exported = ", ".join(csv_file.name for csv_file in csv_files) or "none"
+            raise FileNotFoundError(f"No internal URLs CSV was exported. Found: {exported}")
+
+        return pd.read_csv(internal_csv)
 
 
-def print_csv_names(dataframes: dict[str, pd.DataFrame]) -> None:
-    if not dataframes:
-        print("No CSV files were exported.")
+def print_internal_urls(dataframe: pd.DataFrame) -> None:
+    print(f"Internal URLs ({len(dataframe)} rows):")
+    print(dataframe.to_string(index=False))
+
+
+def print_seed_url_row(dataframe: pd.DataFrame, seed_url: str) -> None:
+    if "Address" not in dataframe.columns:
+        raise KeyError("Expected the Internal export to include an 'Address' column.")
+
+    seed_row = dataframe.loc[dataframe["Address"].eq(seed_url)]
+
+    if seed_row.empty:
+        print(f"No row found for seed URL: {seed_url}")
         return
 
-    print("Exported CSV files:")
-    for csv_name, dataframe in dataframes.items():
-        print(f"=== {csv_name} ===")
-        print(dataframe.to_string(index=False))
+    print(f"Seed URL row for {seed_url}:")
+    print(seed_row.to_string(index=False))
 
 
-dfs = run_crawl("https://wolfenergymuskoka.ca/")
-print_csv_names(dfs)
-
-
-#print the average length of each page title in characters
-for csv_name, dataframe in dfs.items():
-    if "page_titles_all" in csv_name:
-        print(csv_name)
-        print(f"Average length: {dataframe['Title 1'].str.len().mean()}")
+seed_url = "https://wolfenergymuskoka.ca/"
+df = run_crawl(seed_url)
+print_seed_url_row(df, seed_url)
