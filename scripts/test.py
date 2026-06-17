@@ -14,9 +14,9 @@ def run_crawl(url: str) -> dict[str, pd.DataFrame]:
         cmd = [
             SF_CLI,
             "--headless",
-            "--load-crawl", "de396f5b-4386-44fe-ad2a-55a9c2116543",
+            "--crawl", url,
             "--output-folder", str(tmp_path),
-            "--export-tabs", "Images:All",
+            "--export-tabs", "Images:All,Internal:All,Page Titles:All,Content:Semantically Similar", 
             "--overwrite",
         ]
 
@@ -28,28 +28,23 @@ def run_crawl(url: str) -> dict[str, pd.DataFrame]:
         }
 
 
-def print_image_urls(dataframes: dict[str, pd.DataFrame]) -> None:
-    image_exports = {
-        name: dataframe
-        for name, dataframe in dataframes.items()
-        if "image" in name.lower()
-    }
-
-    if not image_exports:
-        print("No image export CSV was found.")
-        print(f"Available CSVs: {', '.join(dataframes) or 'none'}")
+def print_csv_names(dataframes: dict[str, pd.DataFrame]) -> None:
+    if not dataframes:
+        print("No CSV files were exported.")
         return
 
-    for csv_name, dataframe in image_exports.items():
-        print(f"\n=== {csv_name} ({len(dataframe)} images) ===")
-        if dataframe.empty:
-            print("No images found.")
-            continue
-
-        url_column = "Address" if "Address" in dataframe.columns else dataframe.columns[0]
-        for image_url in dataframe[url_column].dropna():
-            print(image_url)
+    print("Exported CSV files:")
+    for csv_name, dataframe in dataframes.items():
+        print(f"=== {csv_name} ===")
+        print(dataframe.to_string(index=False))
 
 
-dfs = run_crawl("https://mrshsfishandchips.ca/")
-print_image_urls(dfs)
+dfs = run_crawl("https://wolfenergymuskoka.ca/")
+print_csv_names(dfs)
+
+
+#print the average length of each page title in characters
+for csv_name, dataframe in dfs.items():
+    if "page_titles_all" in csv_name:
+        print(csv_name)
+        print(f"Average length: {dataframe['Title 1'].str.len().mean()}")

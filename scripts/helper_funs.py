@@ -3,6 +3,28 @@ import pandas as pd
 import re
 
 SF = r"C:\Program Files (x86)\Screaming Frog SEO Spider\ScreamingFrogSEOSpiderCli.exe"
+UUID_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.I,
+)
+
+
+def parse_table_row(line: str) -> dict[str, str] | None:
+    if "║" not in line or "│" not in line:
+        return None
+
+    table_line = line.split("INFO  -", 1)[-1].strip()
+    cells = [cell.strip() for cell in table_line.strip("║").split("│")]
+
+    if len(cells) < 3 or not UUID_PATTERN.match(cells[0]):
+        return None
+
+    return {
+        "database_id": cells[0],
+        "name": cells[1],
+        "url": cells[2],
+    }
+
 
 def crawl_table():
     output = subprocess.run(
@@ -13,34 +35,16 @@ def crawl_table():
         errors="ignore"
     ).stdout
 
-    uuid_pattern = re.compile(
-        r'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})',
-        re.I
-    )
-
-    print(output.splitlines())
-
     rows = []
 
     for line in output.splitlines():
-        match = uuid_pattern.search(line)
-
-        if not match:
-            continue
-
-        crawl_id = match.group(1)
-
-        urls = re.findall(r'https?://[^\s│]+', line)
-
-        rows.append({
-            "database_id": crawl_id,
-            "url": urls[0] if len(urls) > 0 else None,
-            "name": urls[1] if len(urls) > 1 else None
-        })
+        row = parse_table_row(line)
+        if row:
+            rows.append(row)
 
     df = pd.DataFrame(rows)
 
-    print(df)
+    print(df.to_string(index=False))
     return df
 
 def find_crawl_by_domain(domain: str, df: pd.DataFrame):
