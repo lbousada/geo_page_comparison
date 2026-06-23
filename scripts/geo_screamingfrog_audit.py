@@ -28,22 +28,15 @@ SF_PROJECT_INSTANCE_DATA = SF_CONFIG_DIR / "ProjectInstanceData"
 OUTPUT_DIR = Path(r"C:\Users\lbousada\OneDrive - BHEP\Desktop\GEO")
 OUTPUT_FILE_PREFIX = "geo_screamingfrog_audit"
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
-PROMPT = "Are there any affordable MBA programs in BC? Anything under $30,000. Then compare their benefits and negatives and suggest the best one."
+PROMPT = "I want to become a therapist, but don't have a lot of money or time. How can I earn an accredited graduate degree at my own pace online. I live in Ontario."
 EMBEDDING_MODEL = "text-embedding-3-small"
 RELEVANT_CHUNK_THRESHOLD = 0.75
 
 INPUT_URLS = [
-"https://www.yorkvilleu.ca/master-of-business-administration/",
-"https://coursecompare.ca/affordable-mba-in-canada",
-"https://viu.ca/programs/business-management/master-business-administration-mba",
-"https://campuscybercafe.com/blog/post/cheapest-accredited-online-mba-programs-in-canada",
-"https://canadian-universities.net/MBA/MBA_Tuition_Canada.html",
-"https://unbc.ca/commerce/mba/tuition-fees",
-"https://sfu.ca/beedie/programs/graduate/full-time-mba/cost-financing.html",
-"https://studyabroad.careers360.com/articles/affordable-mba-colleges-in-canada",
-"https://find-mba.com/board/americas/budget-mba-in-canada-40978",
-"https://galvanizetestprep.com/blogs/affordable-business-schools-in-canada",
-"https://studyhq.com/cheapest-mba-in-canada",
+    "https://adler.ca/academic-calendar/academic-calendar/academic-programs/transitional-equivalency-program-teq",
+    "https://alis.alberta.ca/occinfo/post-secondary-programs/master-of-counselling/athabasca-university/14221409-4f01-474c-93d6-a12700c5f314",
+    "https://cityuniversity.ca/campuses/ontario",
+    "https://cityuniversity.ca/great-news-for-the-master-of-counselling-virtual-program",
 
 ]
 
