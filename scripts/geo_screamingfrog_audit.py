@@ -28,19 +28,23 @@ SF_PROJECT_INSTANCE_DATA = SF_CONFIG_DIR / "ProjectInstanceData"
 OUTPUT_DIR = Path(r"C:\Users\lbousada\OneDrive - BHEP\Desktop\GEO")
 OUTPUT_FILE_PREFIX = "geo_screamingfrog_audit"
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
-PROMPT = "I'm looking for an MBA program that offers rich exchanges and professional network growth"
+PROMPT = "Are there any affordable MBA programs in BC? Anything under $30,000. Then compare their benefits and negatives and suggest the best one."
 EMBEDDING_MODEL = "text-embedding-3-small"
 RELEVANT_CHUNK_THRESHOLD = 0.75
 
 INPUT_URLS = [
-    # "https://www.yorkvilleu.ca/master-of-business-administration/",
-    "https://ufred.ca/programs/business/accelerated-mba",
-    # "https://ivey.uwo.ca/amba",
-    # "https://smith.queensu.ca/mba_programs/amba/index.php",
-    # "https://ibu.ca/online-mba",
-    # "https://online.unb.ca/master-of-business-administration",
-    # "https://athabascau.ca/programs/summary/master-of-business-administration.html",
-    # "https://smith.queensu.ca/mba_programs/gomba/landing.php",
+"https://www.yorkvilleu.ca/master-of-business-administration/",
+"https://coursecompare.ca/affordable-mba-in-canada",
+"https://viu.ca/programs/business-management/master-business-administration-mba",
+"https://campuscybercafe.com/blog/post/cheapest-accredited-online-mba-programs-in-canada",
+"https://canadian-universities.net/MBA/MBA_Tuition_Canada.html",
+"https://unbc.ca/commerce/mba/tuition-fees",
+"https://sfu.ca/beedie/programs/graduate/full-time-mba/cost-financing.html",
+"https://studyabroad.careers360.com/articles/affordable-mba-colleges-in-canada",
+"https://find-mba.com/board/americas/budget-mba-in-canada-40978",
+"https://galvanizetestprep.com/blogs/affordable-business-schools-in-canada",
+"https://studyhq.com/cheapest-mba-in-canada",
+
 ]
 
 SEMANTIC_COLUMNS = [
@@ -55,6 +59,13 @@ REDIRECT_COLUMNS = [
 ]
 CANONICAL_COLUMNS = [
     "Canonical Link Element 1",
+]
+DUPLICATE_TITLE_COLUMNS = [
+    "Title 2",
+    "Title 2 Length",
+    "Title 2 Pixel Width",
+    "H1-2",
+    "H1-2 Length",
 ]
 
 
@@ -547,7 +558,8 @@ def merge_page_semantics_and_no_render(
     no_render_df: pd.DataFrame,
     resolved_url: str,
 ) -> dict[str, object]:
-    page_without_semantics = drop_columns_case_insensitive(page_df, SEMANTIC_COLUMNS)
+    columns_to_drop = [*SEMANTIC_COLUMNS, *DUPLICATE_TITLE_COLUMNS]
+    page_without_semantics = drop_columns_case_insensitive(page_df, columns_to_drop)
     merged = single_row_dict(page_without_semantics)
     merged.update(extract_semantic_metrics(semantics_df, resolved_url))
     merged.update(extract_no_render_word_count(no_render_df, resolved_url))
