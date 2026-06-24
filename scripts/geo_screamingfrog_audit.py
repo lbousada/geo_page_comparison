@@ -34,9 +34,6 @@ RELEVANT_CHUNK_THRESHOLD = 0.75
 
 INPUT_URLS = [
     "https://adler.ca/academic-calendar/academic-calendar/academic-programs/transitional-equivalency-program-teq",
-    "https://alis.alberta.ca/occinfo/post-secondary-programs/master-of-counselling/athabasca-university/14221409-4f01-474c-93d6-a12700c5f314",
-    "https://cityuniversity.ca/campuses/ontario",
-    "https://cityuniversity.ca/great-news-for-the-master-of-counselling-virtual-program",
 
 ]
 
@@ -349,7 +346,9 @@ def cosineSimilarity(a: list[float], b: list[float]) -> float:
     return dot_product / (norm_a * norm_b)
 
 
-def extractChunkEmbeddings(passageEmbeddingsField: object) -> tuple[list[list[float]], list[str]]:
+def extractChunkEmbeddings(
+    passageEmbeddingsField: object,
+) -> tuple[list[tuple[list[float], str]], list[str]]:
     warnings: list[str] = []
     if is_blank(passageEmbeddingsField):
         return [], ["Passage Embeddings 1 is missing."]
@@ -368,21 +367,24 @@ def extractChunkEmbeddings(passageEmbeddingsField: object) -> tuple[list[list[fl
     if not isinstance(chunks, list):
         raise ValueError("Passage Embeddings 1 does not contain a chunks array.")
 
-    embeddings: list[list[float]] = []
+    chunk_embeddings: list[tuple[list[float], str]] = []
     for index, chunk in enumerate(chunks):
         if not isinstance(chunk, dict):
             warnings.append(f"Chunk {index} is not an object.")
             continue
 
         try:
-            embeddings.append(parseEmbedding(chunk.get("embedding")))
+            chunk_text = ""
+            if not is_blank(chunk.get("text")):
+                chunk_text = str(chunk.get("text")).strip()
+            chunk_embeddings.append((parseEmbedding(chunk.get("embedding")), chunk_text))
         except ValueError as exc:
             warnings.append(f"Chunk {index} embedding invalid: {exc}")
 
-    if not embeddings:
+    if not chunk_embeddings:
         warnings.append("No valid chunk embeddings were found.")
 
-    return embeddings, warnings
+    return chunk_embeddings, warnings
 
 
 def scorePageAgainstPrompt(
@@ -393,6 +395,7 @@ def scorePageAgainstPrompt(
     scores: dict[str, object] = {
         "page_similarity": pd.NA,
         "max_chunk_similarity": pd.NA,
+        "max_chunk_content": pd.NA,
         "avg_top_3_chunk_similarity": pd.NA,
         "relevant_chunk_count": pd.NA,
         "embedding_similarity_warning": pd.NA,
@@ -416,17 +419,19 @@ def scorePageAgainstPrompt(
 
         chunk_similarities = sorted(
             (
-                cosineSimilarity(promptEmbedding, chunk_embedding)
-                for chunk_embedding in chunk_embeddings
+                (cosineSimilarity(promptEmbedding, chunk_embedding), chunk_text)
+                for chunk_embedding, chunk_text in chunk_embeddings
             ),
+            key=lambda item: item[0],
             reverse=True,
         )
         if chunk_similarities:
-            top_3 = chunk_similarities[:3]
-            scores["max_chunk_similarity"] = chunk_similarities[0]
+            top_3 = [similarity for similarity, _ in chunk_similarities[:3]]
+            scores["max_chunk_similarity"] = chunk_similarities[0][0]
+            scores["max_chunk_content"] = chunk_similarities[0][1] or pd.NA
             scores["avg_top_3_chunk_similarity"] = sum(top_3) / len(top_3)
             scores["relevant_chunk_count"] = sum(
-                similarity >= threshold for similarity in chunk_similarities
+                similarity >= threshold for similarity, _ in chunk_similarities
             )
     except ValueError as exc:
         warnings.append(f"Chunk embeddings invalid: {exc}")
@@ -458,6 +463,7 @@ def scorePagesAgainstPrompt(
                 {
                     "page_similarity": pd.NA,
                     "max_chunk_similarity": pd.NA,
+                    "max_chunk_content": pd.NA,
                     "avg_top_3_chunk_similarity": pd.NA,
                     "relevant_chunk_count": pd.NA,
                     "embedding_similarity_warning": pd.NA,
@@ -768,6 +774,7 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
         "Missing Alt Image Count",
         "page_similarity",
         "max_chunk_similarity",
+        "max_chunk_content",
         "avg_top_3_chunk_similarity",
         "relevant_chunk_count",
         "embedding_similarity_warning",
