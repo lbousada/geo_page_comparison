@@ -1,0 +1,234 @@
+<body><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="position: absolute; width: 0; height: 0" aria-hidden="true" id="__SVG_SPRITE_NODE__"><symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" id="srf-icon-dropdown"><path fill-rule="evenodd" d="M3.293 6.293a1 1 0 0 1 1.414 0L8 9.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414" clip-rule="evenodd"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" id="srf-icon-dropup"><path d="M2.8 12 8 6.8l5.2 5.2 1.8-2-7-7-7 7z"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" id="srf-icon-close"><path d="M11 1C5.5 1 1 5.5 1 11s4.5 10 10 10 10-4.5 10-10S16.5 1 11 1m0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8m2.5-12L11 9.5 8.5 7 7 8.5 9.5 11 7 13.5 8.5 15l2.5-2.5 2.5 2.5 1.5-1.5-2.5-2.5L15 8.5z"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 195 138" id="srf-confirm-email-image"><path fill="#CBD1D3" fill-rule="evenodd" d="m83.119 21.894-1.168 3.838-3.837 1.157 3.826 1.18 1.168 3.838 1.168-3.838 3.838-1.169-3.827-1.168zm90.496 5.64 2.143 7.04 7.037 2.123-7.018 2.162-2.142 7.04-2.143-7.04-7.057-2.123 7.037-2.163zm-2.432 29.43.935-3.07.934 3.07 3.062.935-3.07.935-.935 3.07-.934-3.07-3.061-.944zM7.951 38.732l1.168-3.838 1.168 3.838 3.826 1.168-3.837 1.169-1.168 3.837L7.94 41.07l-3.826-1.18z" clip-rule="evenodd"></path><path fill="#EEF0F1" fill-rule="evenodd" d="M72.479 87.479c15.035-15.036 17.093-37.355 4.596-49.851s-34.816-10.44-49.851 4.596-17.093 37.354-4.596 49.85c12.496 12.498 34.816 10.44 49.85-4.595" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M22.628 92.074c12.496 12.497 34.816 10.439 49.85-4.596 15.036-15.035 17.094-37.354 4.597-49.851s-34.816-10.439-49.851 4.596-17.093 37.355-4.596 49.851M75.66 39.041c11.652 11.652 9.71 32.717-4.597 47.023-14.305 14.306-35.37 16.248-47.022 4.596s-9.71-32.717 4.596-47.023 35.37-16.248 47.023-4.596" clip-rule="evenodd"></path><rect width="9" height="9" x="85.415" y="98.778" fill="#fff" stroke="#CBD1D3" stroke-width="2" rx="4.5" transform="rotate(-45 85.415 98.778)"></rect><rect width="11" height="11" x="84" y="98.778" fill="#fff" rx="5.5" transform="rotate(-45 84 98.778)"></rect><path fill="#CBD1D3" fill-rule="evenodd" d="M95.668 94.889a5.5 5.5 0 1 0-7.779 7.778 5.5 5.5 0 0 0 7.779-7.778m-6.365 6.364a3.5 3.5 0 1 1 4.951-4.95 3.5 3.5 0 0 1-4.95 4.95" clip-rule="evenodd"></path><path fill="#fff" fill-rule="evenodd" d="M79.89 102.889c2.147-2.148 5.02-2.758 6.416-1.361l2.723 2.722c1.396 1.396.786 4.269-1.361 6.417s-5.021 2.757-6.418 1.361l-2.722-2.722c-1.396-1.396-.787-4.269 1.361-6.417" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M86.306 101.528c-1.396-1.397-4.269-.787-6.417 1.361s-2.757 5.021-1.36 6.417l2.722 2.722c1.396 1.396 4.269.787 6.416-1.361s2.758-5.021 1.362-6.417zm-6.364 6.363c-.455-.455-.1-2.126 1.362-3.588s3.133-1.817 3.588-1.361l2.723 2.722c.455.455.1 2.127-1.362 3.589s-3.133 1.816-3.588 1.361z" clip-rule="evenodd"></path><path fill="#EEF0F1" fill-rule="evenodd" d="M88.256 104.255c6.053-6.053 4.628-17.291-3.182-25.102-7.81-7.81-19.05-9.235-25.103-3.182s-4.628 17.292 3.182 25.102c7.81 7.811 19.05 9.236 25.103 3.182" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M63.154 101.073c7.81 7.811 19.049 9.235 25.102 3.182s4.628-17.291-3.182-25.102c-7.81-7.81-19.05-9.235-25.102-3.182-6.053 6.053-4.629 17.292 3.182 25.102M83.66 80.567c7.097 7.097 8.364 17.092 3.182 22.274s-15.177 3.915-22.274-3.182-8.364-17.092-3.182-22.274 15.177-3.915 22.274 3.182" clip-rule="evenodd"></path><path fill="#fff" fill-rule="evenodd" stroke="#CBD1D3" stroke-width="2" d="M70.548 85.548c8.982-8.983 10.248-22.279 2.828-29.699s-20.716-6.154-29.699 2.829c-8.981 8.981-10.248 22.278-2.828 29.698s20.717 6.154 29.699-2.829Z" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M64.242 79.242a2 2 0 1 0-2.828-2.828 2 2 0 0 0 2.828 2.828" clip-rule="evenodd"></path><g fill="#CBD1D3" fill-rule="evenodd" clip-rule="evenodd"><path d="M46.95 82.849a7 7 0 1 0 9.899-9.9 7 7 0 0 0-9.9 9.9m8.485-8.485a5 5 0 1 1-7.071 7.07 5 5 0 0 1 7.07-7.07"></path><path d="M57.07 81.07c1.172-1.17 1.014-3.228-.353-4.595s-3.424-1.525-4.596-.354c-1.172 1.172-1.013 3.23.354 4.596s3.424 1.525 4.596.354"></path></g><g fill="#CBD1D3" fill-rule="evenodd" clip-rule="evenodd"><path d="M56.95 71.849a7 7 0 1 0 9.9-9.9 7 7 0 0 0-9.9 9.9m8.485-8.486a5 5 0 1 1-7.07 7.071 5 5 0 0 1 7.07-7.07"></path><path d="M64.071 72.07c1.172-1.17 1.014-3.229-.353-4.595-1.367-1.367-3.425-1.526-4.597-.354-1.171 1.172-1.013 3.23.354 4.596s3.425 1.525 4.596.354"></path></g><path fill="#EEF0F1" fill-rule="evenodd" d="M23 73.084c3.552-2.163 8.32-4.312 14.013-5.084-.564 5.588-.217 10.974.987 16-7.493-2.407-12.259-7.183-15-10.916" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M36.89 68.198c-5.693.771-10.46 2.92-14.013 5.083 2.742 3.733 7.507 8.51 15 10.917-1.204-5.027-1.551-10.413-.987-16m-2.19 2.414a50.2 50.2 0 0 0 .511 10.398c-3.717-1.736-6.806-4.199-9.32-7.144 2.767-1.468 5.71-2.584 8.808-3.254" clip-rule="evenodd"></path><path fill="#EEF0F1" fill-rule="evenodd" d="M54 52.076c.719-5.315 2.736-9.764 4.766-13.076C62.268 41.556 66.75 46.003 69 53c-4.792-1.138-9.863-1.438-15-.924" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M58.704 39.173c-2.03 3.312-4.047 7.761-4.765 13.076 5.136-.514 10.208-.214 15 .924-2.25-6.997-6.732-11.444-10.235-14m.585 3.011c2.64 2.266 4.858 5.03 6.445 8.335a47.7 47.7 0 0 0-9.375-.454c.616-2.766 1.619-5.399 2.93-7.881M37 94.485l9.577-7.394 1.03 1.03-9.577 7.393zM43.37 96.026 48.657 90l1.045 1.045-5.288 6.025zM71.586 63.364l7.192-8.365.829.829-7.193 8.364zM74.37 66.026 79.657 60l1.045 1.045-5.288 6.026z" clip-rule="evenodd"></path><path fill="#fff" fill-rule="evenodd" d="M30.336 54.367a2 2 0 0 1-2.32-3.26c.022-.014.463-.485 1.081-1.206a2 2 0 0 1 3.038 2.602c-.877 1.024-1.395 1.577-1.799 1.864M22.819 72.605a2 2 0 0 1-3.965-.532c.848-6.315 2.375-11.35 4.618-15.113a2 2 0 1 1 3.435 2.048c-1.932 3.242-3.307 7.776-4.088 13.596M61.505 92.885c-2.047 0-3.5 1.136-3.5 2.334v4.333c0 1.198 1.453 2.333 3.5 2.333s3.5-1.135 3.5-2.333V95.22c0-1.198-1.452-2.334-3.5-2.334" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M67.005 95.219c0-2.442-2.462-4.334-5.5-4.334s-5.5 1.892-5.5 4.334v4.333c0 2.442 2.463 4.333 5.5 4.333s5.5-1.891 5.5-4.333zm-9 0c0-1.198 1.453-2.334 3.5-2.334s3.5 1.136 3.5 2.334v4.333c0 1.198-1.452 2.333-3.5 2.333s-3.5-1.135-3.5-2.333z" clip-rule="evenodd"></path><g fill-rule="evenodd" clip-rule="evenodd"><path fill="#EEF0F1" d="M163.901 97.128V50.737a1.85 1.85 0 0 0-1.854-1.854H87.819a1.85 1.85 0 0 0-1.854 1.854v46.391a1.85 1.85 0 0 0 1.853 1.854h74.229a1.853 1.853 0 0 0 1.854-1.854"></path><path fill="#CBD1D3" d="M162.047 98.982a1.853 1.853 0 0 0 1.854-1.854V50.737a1.85 1.85 0 0 0-1.854-1.854H87.819a1.85 1.85 0 0 0-1.854 1.854v46.391a1.85 1.85 0 0 0 1.853 1.854zM87.965 50.883H161.9v46.099H87.964z"></path><path fill="#EEF0F1" d="m165.077 97.234-.428-46.928a1.91 1.91 0 0 0-1.095-1.708 1.86 1.86 0 0 0-1.995.24l-31.121 25.847c-.45.376-.694.946-.657 1.538a1.9 1.9 0 0 0 .849 1.464l31.549 21.083a1.88 1.88 0 0 0 1.924.108 1.83 1.83 0 0 0 .974-1.644"></path><path fill="#CBD1D3" d="M164.103 98.878a1.83 1.83 0 0 0 .974-1.644l-.428-46.928a1.91 1.91 0 0 0-1.095-1.708 1.86 1.86 0 0 0-1.995.24l-31.121 25.847c-.45.376-.694.946-.657 1.538a1.9 1.9 0 0 0 .849 1.464l31.549 21.083a1.88 1.88 0 0 0 1.924.108M131.86 76.104l30.791-25.574.423 46.433z"></path><path fill="#EEF0F1" d="M121.324 76.223a1.85 1.85 0 0 0-.657-1.538L89.545 48.837a1.86 1.86 0 0 0-1.995-.24c-.66.315-1.088.981-1.095 1.708l-.428 46.929A1.84 1.84 0 0 0 87 98.882c.606.319 1.345.28 1.924-.108l31.55-21.084c.497-.332.812-.876.85-1.468"></path><path fill="#CBD1D3" d="M120.474 77.69c.497-.332.812-.876.85-1.468a1.85 1.85 0 0 0-.657-1.537L89.545 48.837a1.86 1.86 0 0 0-1.995-.24c-.66.315-1.088.981-1.095 1.708l-.428 46.929A1.84 1.84 0 0 0 87 98.882c.606.319 1.345.28 1.924-.108zm-32.02-27.16 30.792 25.575-31.216 20.86z"></path><path fill="#fff" d="M164.321 49.967a1.85 1.85 0 0 0-1.737-1.218l-73.97.002a1.848 1.848 0 0 0-1.308 3.152q.059.059.122.113l36.986 30.821a1.85 1.85 0 0 0 2.368 0l36.985-30.821a1.85 1.85 0 0 0 .554-2.049"></path><path fill="#CBD1D3" d="M163.767 52.016a1.849 1.849 0 0 0-1.183-3.267l-73.97.002c-.78 0-1.473.487-1.738 1.217-.246.68-.074 1.432.552 2.048l36.986 30.821a1.85 1.85 0 0 0 2.368 0zM89.034 50.75l73.129-.002-36.565 30.471z"></path><path fill="#fff" d="M100 28h52a2 2 0 0 1 2 2v29.839a2 2 0 0 1-.736 1.55l-26 21.21a2 2 0 0 1-2.528 0l-26-21.21a2 2 0 0 1-.736-1.55V30a2 2 0 0 1 2-2"></path><path fill="#CBD1D3" d="M152 28h-52a2 2 0 0 0-2 2v29.839a2 2 0 0 0 .736 1.55l26 21.21a2 2 0 0 0 2.528 0l26-21.21a2 2 0 0 0 .736-1.55V30a2 2 0 0 0-2-2m-52 31.839V30h52v29.839l-26 21.21z"></path></g><path fill="#CBD1D3" fill-rule="evenodd" d="M110 44h24a1 1 0 1 1 0 2h-24a1 1 0 0 1 0-2m0 6h16a1 1 0 1 1 0 2h-16a1 1 0 0 1 0-2m33 7a1 1 0 0 0-1-1h-32a1 1 0 0 0 0 2h32a1 1 0 0 0 1-1" clip-rule="evenodd"></path><path fill="#fff" fill-rule="evenodd" d="M80.074 76.427c0 1.94 1.536 3.5 3.416 3.5h2.167c1.88 0 3.416-1.56 3.416-3.5s-1.536-3.5-3.416-3.5H83.49c-1.88 0-3.416 1.56-3.416 3.5" clip-rule="evenodd"></path><path fill="#CBD1D3" fill-rule="evenodd" d="M83.49 70.927c-2.991 0-5.416 2.462-5.416 5.5s2.425 5.5 5.416 5.5h2.167c2.991 0 5.416-2.463 5.416-5.5s-2.425-5.5-5.416-5.5zm0 9c-1.88 0-3.416-1.56-3.416-3.5s1.536-3.5 3.416-3.5h2.167c1.88 0 3.416 1.56 3.416 3.5s-1.536 3.5-3.416 3.5zM94.671 118.206a1 1 0 0 0-1.414 1.415l1.242 1.242a1 1 0 1 0 1.415-1.414zm4.172 4.172a1 1 0 1 0-1.415 1.414l3.9 3.9a1 1 0 0 0 1.414-1.415zm2.949-7.849a1 1 0 0 1 1.415 0l7.384 7.385a.999.999 0 1 1-1.414 1.414l-7.385-7.385a1 1 0 0 1 0-1.414m4.929-8.272a.999.999 0 1 0-1.414 1.414l4.142 4.142a.999.999 0 1 0 1.414-1.414z" clip-rule="evenodd"></path></symbol></svg>
+            
+
+            <div class="srf-layout">
+                
+
+<script src="/__static__/webpack/skip_to_content.d6ec5d6e25e1b6da.js" defer=""></script>
+
+<div class="srf-layout__skip-to-content">
+    <button id="skip-to-content">Skip to content</button>
+</div>
+
+
+                <div class="srf-layout__notification">
+                    
+
+
+                    
+
+                    
+
+
+
+                    
+
+
+                    
+
+
+                    
+
+
+
+
+                    
+                </div>
+
+                <div class="srf-layout__header">
+                    
+                        <!-- #region Page Slot "page_header_slot" -->
+
+    <!-- #region Empty Component --><!-- #endregion -->
+
+<!-- #endregion -->
+
+                    
+                </div>
+
+                <div class="srf-layout__sidebar">
+                    
+                        <!-- #region Page Slot "page_sidebar_slot" -->
+
+    <!-- #region Empty Component --><!-- #endregion -->
+
+<!-- #endregion -->
+
+                    
+                </div>
+
+                <div class="srf-layout-main-content-wrapper">
+                    <main class="srf-layout__body" id="root-content">
+                        
+                            
+                                
+  <style>
+    #app {
+      display: flex;
+      justify-content: center;
+      flex-grow: 1;
+      height: 100%;
+    }
+
+    .auth_spin {
+      margin: auto;
+      width: 72px;
+      height: 72px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .auth_spin {
+        animation: rotate 0.75s infinite linear;
+      }
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
+  <link href="/site/static/772eb007/spa.vendors.b7c844c7869cba6710c0.css" rel="stylesheet" integrity="sha256-dk7oILLgSG+fqFXr5RU6Ifdtk5kXxlGTYSLpogomvFw=">
+<link href="/site/static/772eb007/auth.58bf4df3862d20a8f057.css" rel="stylesheet" integrity="sha256-RVA4W0LD1662XdXUIKTiLh50pxcaZSAVdQ4pC1dOr84=">
+
+  <script>
+    window.__AUTH_STATE__ = {
+      countryCode: "ca",
+      isChina: false,
+      ssoEnv: "production",
+      isMobile: false,
+      isCorp: false,
+      featureFlags: ['copilot'],
+      theme: "default",
+      offerInfo: {
+          trial_offer: false,
+          trial_period: 0,
+          offer_hash: ""
+      },
+      
+    };
+  </script>
+
+  
+
+  <div id="app"><div id="layout" class="Layout__layout--vqWhx" data-ga4-wt-page-path="login.page"><div class="___SFlex_6pord_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ Layout__header--gn4sJ" data-ui-name="Flex"><a class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ Layout__logo--yw74w" data-ui-name="Box" href="/" id="header-logo" data-ga4-event-onclick="true" data-ga4-label="logo" data-ga4-path="link"><img src="/site/static/772eb007/images/semrush_logo.ffd95126de387bb6b16c.svg" alt="Semrush" width="150" height="36"></a></div><section class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ Layout__content--_5xnu" data-ui-name="Box" aria-labelledby="h1-title" data-test="BasicLoginView" id="srf-skip-to-content" data-animated-appearence="false"><h1 class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ Title__title--NBLL6 ___SText_17kj2_gg_" data-ui-name="Text" id="h1-title" tabindex="-1">Log in</h1><form class="___SFlex_6pord_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_" data-ui-name="Flex" novalidate="" direction="column" id="loginForm" style="flex-direction: column; gap: 16px;" data-gtm-form-interact-id="0"><div class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_" data-ui-name="Box" style="height: 44px;"><div class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_" data-ui-name="Box" data-auth="google-auth-button" data-test="google-auth"><div class="S9gUrf-YoZ4jf" style="position: relative;"><div></div><iframe src="https://accounts.google.com/gsi/button?type=standard&amp;size=large&amp;theme=outline&amp;logo_alignment=left&amp;width=348&amp;text=signin_with&amp;click_listener=()%3D%3E%7B(0%2CR.A)(%22click%22%2C%7Bitem_label%3Aa%3F%22continue_with_google%22%3A%22log-in_with_google%22%2Citem_location%3A%22button%22%7D)%7D&amp;is_fedcm_supported=false&amp;client_id=455507004705-2uef3t7ptqmq1n64nm6emj44ql3rpeft.apps.googleusercontent.com&amp;iframe_id=gsi_839092_424217&amp;cas=kkIHeclCAH6m149RLmIWpAiJgN75X72pSAjQulItCzQ&amp;hl=en" class="L5Fo6c-PQbLGe" allow="identity-credentials-get" id="gsi_839092_424217" title="Sign in with Google Button" style="display: block; position: relative; top: 0px; left: 0px; height: 44px; width: 368px; border: 0px; margin: -2px -10px;"></iframe></div></div></div><div class="___SFlex_6pord_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ styles__divider--RWGRG" data-ui-name="Flex" style="align-items: center; justify-content: center;"><span class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SText_17kj2_gg_ __color_17kj2_gg_ _size_200_17kj2_gg_" data-ui-name="Text" color="var(--intergalactic-text-secondary, #6c6e79)" size="200" style="--color_17kj2: var(--intergalactic-text-secondary, #6c6e79); padding-left: 24px; padding-right: 24px;">or</span></div><div class="___SFlex_6pord_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_" data-ui-name="Flex" direction="column" data-mf-hidden="true" style="align-items: flex-start; flex-direction: column; gap: 8px;"><label class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SText_17kj2_gg_ _size_300_17kj2_gg_" data-ui-name="Text" for="email" size="300">Email</label><div class="_inAfterOutline_false_1gmko_gg_ ___SBoxInline_1gmko_gg_ ___SBox_1gmko_gg_" data-ui-name="Tooltip.Trigger" style="width: 100%;"><div class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SInput_1qrmt_gg_ _size_l_1qrmt_gg_ _state_normal_1qrmt_gg_" data-ui-name="Input" style="width: 100%;"><input class="_inAfterOutline_true_1gmko_gg_ ___SBox_1gmko_gg_ ___SValue_1qrmt_gg_ _size_l_1qrmt_gg_ _state_normal_1qrmt_gg_" data-ui-name="Input.Value" type="email" aria-invalid="false" id="email" name="email" data-sso="loginForm" autocomplete="email" data-test="login-page__input-email" required="" value="" data-gtm-form-interact-field-id="0"><div class="___SOutline_1qrmt_gg_"></div></div></div></div><div class="___SFlex_6pord_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_" data-ui-name="Flex" direction="column" data-mf-hidden="true" style="align-items: flex-start; flex-direction: column; gap: 8px;"><label class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SText_17kj2_gg_ _size_300_17kj2_gg_" data-ui-name="Text" for="password" size="300">Password</label><div class="_inAfterOutline_false_1gmko_gg_ ___SBoxInline_1gmko_gg_ ___SBox_1gmko_gg_" data-ui-name="Tooltip.Trigger" style="width: 100%;"><div class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SInput_1qrmt_gg_ _size_l_1qrmt_gg_ _state_normal_1qrmt_gg_" data-ui-name="Input" style="width: 100%;"><input class="_inAfterOutline_true_1gmko_gg_ ___SBox_1gmko_gg_ ___SValue_1qrmt_gg_ _size_l_1qrmt_gg_ _state_normal_1qrmt_gg_" data-ui-name="Input.Value" type="password" aria-invalid="false" id="password" name="password" data-sso="loginForm" autocomplete="current-password" data-test="login-page__input-password" required="" value="" style="padding-right: 0%;"><svg role="button" tabindex="0" class="___SIcon_18qo9_gg_ __interactive_18qo9_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SAddon_1qrmt_gg_ _size_l_1qrmt_gg_ __interactive_1qrmt_gg_" data-ui-name="Input.Addon" width="16" height="16" viewBox="0 0 16 16" focusable="true" data-name="ShowYes" data-group="m" color="icon-secondary-neutral" aria-label="View password" style="--color_18qo9: var(--intergalactic-icon-secondary-neutral, #a9abb6); margin-right: 0%; padding-right: 12px;"><path fill-rule="evenodd" clip-rule="evenodd" d="m15.946 8.333.003-.008a1.008 1.008 0 0 0-.003-.652 8.4 8.4 0 0 0-15.89 0 .98.98 0 0 0-.054.273L0 7.961a.982.982 0 0 0 .055.372 8.45 8.45 0 0 0 7.95 5.67 8.45 8.45 0 0 0 7.94-5.67ZM4.28 10.807a6.4 6.4 0 0 1-2.21-2.804 6.4 6.4 0 0 1 11.863 0 6.4 6.4 0 0 1-9.653 2.804Zm2.609-1.141A2 2 0 1 0 9.11 6.34a2 2 0 0 0-2.22 3.326Z" shape-rendering="geometricPrecision"></path></svg><div class="___SOutline_1qrmt_gg_"></div></div></div><a class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ Link__link--CQWff ___SLink_7kc3r_gg_ __noWrapText_7kc3r_gg_ ___SText_d8zfh_gg_ _size_200_d8zfh_gg_" data-ui-name="Link" role="link" tabindex="0" data-test="login-page__link-forgot" size="200" href="/login/restore/" data-invert="true" style="margin-left: auto;"><span class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SText_7kc3r_gg_" data-ui-name="Link.Text">Forgot your password?</span></a></div><button class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SButton_gw5o3_gg_ _size_l_gw5o3_gg_ _theme_primary-info_gw5o3_gg_" data-ui-name="Button" type="submit" aria-busy="false" tabindex="0" data-ga4-event-onclick="true" data-ga4-path="button" data-test="login-page__btn-login" data-ga4-label="login" style="width: 100%; margin-top: 8px;"><span class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SInner_gw5o3_gg_" data-ui-name="Button.InnerWrapper"><span class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ _size_l_gw5o3_gg_ ___SText_gw5o3_gg_" data-ui-name="Button.Text">Log in</span></span></button></form><div class="___SFlex_6pord_gg_ _inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ signup-additional-texts" data-ui-name="Flex" direction="column" style="margin-top: 24px; align-items: flex-start; flex-direction: column; gap: 24px;"><p class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SText_17kj2_gg_ _size_300_17kj2_gg_" data-ui-name="Text" size="300" data-test="login-page__text-signup">Don't have a Semrush account? <a class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ Link__link--CQWff ___SLink_7kc3r_gg_ __noWrapText_7kc3r_gg_ ___SText_d8zfh_gg_" data-ui-name="Link" role="link" tabindex="0" data-test="login-page__link-signup" href="/signup/?msockid=13c651852a096df32ddc46022b826c36" data-invert="true"><span class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SText_7kc3r_gg_" data-ui-name="Link.Text">Sign up</span></a></p><a class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ Link__link--CQWff ___SLink_7kc3r_gg_ __noWrapText_7kc3r_gg_ ___SText_d8zfh_gg_ _size_300_d8zfh_gg_" data-ui-name="Link" role="link" tabindex="0" size="300" data-test="login-page__link-saml" href="/login/saml/?msockid=13c651852a096df32ddc46022b826c36" data-invert="true"><span class="_inAfterOutline_false_1gmko_gg_ ___SBox_1gmko_gg_ ___SText_7kc3r_gg_" data-ui-name="Link.Text">Log in with SAML</span></a></div></section></div><div id="recaptcha"><div class="grecaptcha-badge" data-style="bottomleft" style="width: 256px; height: 60px; display: block; transition: left 0.3s; position: fixed; bottom: 14px; left: -186px; box-shadow: gray 0px 0px 5px; border-radius: 2px; overflow: hidden;"><div class="grecaptcha-logo"><iframe title="reCAPTCHA" width="256" height="60" role="presentation" name="a-tjclfhbhy0xh" frameborder="0" scrolling="no" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation" src="https://www.google.com/recaptcha/api2/anchor?ar=1&amp;k=6Ldw6DYUAAAAACFCNmvsT32P6VPVonpjbSS7XTA9&amp;co=aHR0cHM6Ly93d3cuc2VtcnVzaC5jb206NDQz&amp;hl=en&amp;v=MerVUtRoajKEbP7pLiGXkL28&amp;size=invisible&amp;badge=bottomleft&amp;anchor-ms=20000&amp;execute-ms=30000&amp;cb=mchs0bxfhxrp"></iframe></div><div class="grecaptcha-error"></div><textarea id="g-recaptcha-response" name="g-recaptcha-response" class="g-recaptcha-response" style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea></div><iframe style="display: none;"></iframe></div><div data-test="payment-form-container" style="position: absolute; left: -9999px; width: 500px; height: 300px; visibility: hidden; opacity: 0; pointer-events: none; transition: opacity 0.2s;"></div></div>
+
+  <script src="/site/static/772eb007/spa.vendors.19b3c3578e0615038d73.js" integrity="sha256-pdhrUBjwES/rYmRs+/uxW3njJc/myMWdM4cXZAc9QIQ=" defer=""></script>
+<script src="/site/static/772eb007/auth.665c4b5e29f531037feb.js" integrity="sha256-bW5VmR6w3o8m+ZDMP98EvBM+RZ8p1ThYkLtEtFNmgZI=" defer=""></script>
+
+  <input type="hidden" name="csrfmiddlewaretoken" value="HDkreUFst3h7kvpW0LfGNfA5HQ2FNxb2hFffHmU7mbsyAH4D5TJFnP1IHASdVtE4">
+
+  
+    <script defer="" src="https://lp.semrush.com/js/forms2/js/forms2.min.js"></script>
+    <form id="mktoForm_1025" style="display: none"></form>
+  
+
+  
+
+
+
+                            
+
+                            
+                        
+                    </main>
+
+                    <div class="srf-layout__footer">
+                        
+                            <!-- #region Page Slot "page_footer_slot" -->
+
+    <!-- #region Empty Component --><!-- #endregion -->
+
+<!-- #endregion -->
+
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div id="srf-notice-bubble-container" role="region" aria-label="Notifications"></div>
+            <div class="srf-overlay"></div>
+            <div class="srf-popup-manager"></div>
+            <div id="srf-sso-login-form"></div>
+            <div id="srf-limit-popup"></div>
+            <div id="srf-billing-popup"></div>
+            <div id="srf-sharing-popup"></div>
+            <div id="srf-multi-invite-popup"></div>
+
+            
+                
+
+
+
+                
+
+
+    
+    
+    <script>
+window.Intercom = function (action) {
+  try {
+    console.group('Intercom(' + action + ')');
+    console.log(Array.from(arguments));
+    console.groupEnd();
+  } catch (e) {
+    console.log('Intercom: ', action);
+  }
+};
+</script>
+
+
+
+            
+
+            
+            <script>
+            if (window.ga) {
+                if (window.sm2.GAexperiments.length) {
+                    window.ga('set', 'exp', window.sm2.GAexperiments.join('!'));
+                }
+                
+                    window.ga('send', 'pageview');
+                
+            }
+            </script>
+
+            <!--
+            Don't read and rely on this data from external integrated services or scripts,
+            as it is subject to change and not backward compatible.
+            -->
+            <script id="sm2_initial_state" type="application/json">{"base": {"cookie_domain": ".semrush.com", "csrfToken": "M17rEeTAYKRuiZfQxe27lYNFlcVL8eGtnjHPnu1Rz0ZkkhMrUBmWEPOxQoi2B5WE", "language_code": "en", "PopupManager": {"popups": {"need_confirm_email": null, "disabled_user": false, "reset_password": false}}, "switchLanguageApiEndpoint": "/i18n/switch_language_api/", "sso": {"enable_preload": false, "env": "production", "root_url": "/sso", "root_semrush_url": "https://www.semrush.com"}}, "searchbarApiV1Config": {"autocompleteUrl": "https://www.semrush.com/search-bar/api/search/suggestions?type=2", "tldsUrl": "/__static__/default-tld-list.txt", "redirectToKeyword": false, "allowProtocol": false, "formAction": "/login", "gaLabel": "(not-set-in-config)", "defaultQuery": "", "device": null, "date": null, "currency": null, "defaultProtocol": null, "defaultSearchType": null, "defaultVisible": true, "supportedSearchTypes": [], "spaMode": false, "updateBrowserHistory": false, "toolCode": "site", "theme": "secondary", "tldFileName": "default"}}</script>
+
+            <script src="/__static__/webpack/3486.7e23ac48b01810f7.js" defer=""></script>
+<script src="/__static__/webpack/9752.b3fb44ee23630954.js" defer=""></script>
+<script src="/__static__/webpack/258.725e4f74218fb25a.js" defer=""></script>
+<script src="/__static__/webpack/9327.a618406803b9d474.js" defer=""></script>
+<script src="/__static__/webpack/1633.f0473796c77f64a0.js" defer=""></script>
+<script src="/__static__/webpack/7353.b50527795763b2e3.js" defer=""></script>
+<script src="/__static__/webpack/base.5819e2ec0c6c758f.js" defer=""></script>
+            <script src="/__static__/webpack/5650.035e4201f36508eb.js" defer=""></script>
+<script src="/__static__/webpack/init_component_provider.f4d9cde7f4dcd417.js" defer=""></script>
+            
+                <script src="/__static__/webpack/init_searchbar_api.a99be980c557c181.js" defer=""></script>
+            
+            
+
+            
+
+            
+
+            <script>
+            
+            </script>
+        
+    
+
+
+
+
+<script type="text/javascript" id="" charset="">(function(){window.showConsentSettings=function(){if(0<arguments.length)throw Error("showConsentSettings function called with arguments");if("cookiehub"in window&&"object"==typeof window.cookiehub&&window.cookiehub.hasInitialised)return window.cookiehub.openSettings(),Promise.resolve();throw Error("showConsentSettings was called before cookiehub has been initialized");}})();</script><script type="text/javascript" id="" charset="">(function(){window.showDontSellMyDataSettings=function(){if(0<arguments.length)throw Error("showDontSellMyDataSettings function called with arguments");if("cookiehub"in window&&"object"==typeof window.cookiehub&&window.cookiehub&&window.cookiehub.hasInitialised)return window.cookiehub.openPersonalData?window.cookiehub.openPersonalData():window.cookiehub.openSettings(),Promise.resolve();throw Error("showDontSellMyDataSettings was called before cookiehub has been initialized");}})();</script><script type="text/javascript" id="" charset="">window.uetq=window.uetq||[];window.uetq.push("consent","update",{ad_storage:google_tag_manager["rm"]["2084770"](18)});</script><script id="" text="" charset="" type="text/javascript" src="https://static.semrush.com/ref-code-script/js/2.4.0/ref.js"></script><script id="" text="" charset="" type="text/javascript" src="https://www.semrush.com/olaf"></script><script type="text/javascript" id="" charset="">var uid=google_tag_manager["rm"]["2084770"](35);uid&&window.hid!==uid&&(window.hid=uid);</script><iframe name="__uspapiLocator" style="display: none;"></iframe><script type="text/javascript" id="" charset="">var uid=google_tag_manager["rm"]["2084770"](57);uid&&window.hid!==uid&&(window.hid=uid);</script><style data-ch2inline="true">.ch2 * { --cookiehub-primary-color: #ffffff; }.ch2-style-light .ch2-btn-primary, .ch2-style-dark .ch2-btn-primary { background: #ffffff;color:#181e15}.ch2-style-light .ch2-btn-primary:hover, .ch2-style-dark .ch2-btn-primary:hover { background: #ffffff; box-shadow: 0px 0px 20px 0 #ffffff66; }.ch2-style-light .ch2-switch input:checked + label, .ch2-style-dark .ch2-switch input:checked + label { background: #ffffff }.ch2-style-light.ch2-icon a:hover svg { border: 2px solid #ffffff; fill: #ffffff }.ch2-style-dark.ch2-icon a:hover svg { border: 2px solid #ffffff; background: #ffffff }@media (max-width: 800px) {.ch2-settings-declaration table tbody tr td:not([colspan]):nth-child(1)::before { content: 'Name: '; }.ch2-settings-declaration table tbody tr td:not([colspan]):nth-child(2)::before { content: 'Hostname: '; }.ch2-settings-declaration table tbody tr td:not([colspan]):nth-child(3)::before { content: 'Path: '; }.ch2-settings-declaration table tbody tr td:not([colspan]):nth-child(4)::before { content: 'Expiry: '; }}</style><div data-region="ca" class="ch2 ch2-region-ca" data-nosnippet="true" style=""><div class="ch2-container ch2-theme-bar  ch2-style-light ch2-ea"><div id="ch2-dialog" class="ch2-dialog ch2-dialog-bottom ch2-visible" role="dialog" tabindex="-1" aria-labelledby="ch2-dialog-title" aria-describedby="ch2-dialog-description" aria-modal="true"><div class="ch2-dialog-content h2-dialog-content-morespace"><h2 id="ch2-dialog-title">About cookies on this site</h2><p id="ch2-dialog-description">We use cookies to run our website, analyze your use of our services, manage your online preferences &amp; personalize ad content. By accepting our cookies, you'll get relevant content and social media features, personalized ads, and an enhanced browsing experience. To manage your choices, click “Cookie Settings.”  Necessary cookies are required for the core website functionality and cannot be rejected. For more information, see our</p><p><a href="https://www.semrush.com/company/legal/cookie-policy/" rel="noopener" target="_self" class="ch2-learn-more" tabindex="0">Cookie Policy.</a></p></div><div class="ch2-dialog-actions ch2-dialog-actions-vertical"><button class="ch2-btn ch2-allow-all-btn ch2-btn-primary" tabindex="0">Allow all cookies</button><button class="ch2-btn ch2-deny-all-btn ch2-btn-primary" tabindex="0">Deny all</button><button class="ch2-btn ch2-open-settings-btn ch2-btn-transparent" tabindex="0">Cookie settings</button></div></div></div><div class="ch2-icon ch2-icon-standard ch2-style-light ch2-icon-right"><a href="#" class="ch2-open-settings-btn" role="button" aria-label="Cookie settings" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23.03 23.02"><path d="M10.31.08a5.25,5.25,0,0,0-.25,1.11c-.1.57-.2,1.08-.22,1.14s-.1.11-.27.14a5.2,5.2,0,0,0-.68.17l-.46.14-.2-.22c-.1-.13-.44-.52-.74-.88A2.83,2.83,0,0,0,6.83,1a4.14,4.14,0,0,0-1,.5c-1,.58-1.06.62-1.06.76A10.66,10.66,0,0,0,5.13,3.4l.38,1L5,5l-.53.54-.17-.07c-.69-.27-1.92-.7-2-.7s-.19,0-.76,1.06a4.52,4.52,0,0,0-.5,1c0,.08.24.3.67.66l.87.75.22.19-.13.46a6,6,0,0,0-.18.69c0,.16-.06.24-.14.26s-.55.12-1.11.22a8.44,8.44,0,0,0-1.11.24C0,10.35,0,10.36,0,11.5s0,1.14.09,1.21A5.07,5.07,0,0,0,1.18,13l1.11.2c.08,0,.12.08.16.23s.1.42.18.68a4.33,4.33,0,0,1,.13.52,9.1,9.1,0,0,1-.87.76,4.94,4.94,0,0,0-.87.84,4.14,4.14,0,0,0,.5,1c.58,1,.61,1.06.76,1.06a11.47,11.47,0,0,0,1.13-.37l1-.38L5,18l.53.53-.06.17c-.27.69-.7,1.91-.7,2s0,.19,1.06.77a4.53,4.53,0,0,0,1,.5,3.75,3.75,0,0,0,.8-.84l.75-.88s.21,0,.51.1l.68.17c.17,0,.24.06.27.13s.13.57.22,1.14a6,6,0,0,0,.25,1.11c.07.08.19.09,1.21.09s1.15,0,1.22-.11A7.21,7.21,0,0,0,13,21.79c.1-.55.2-1.05.22-1.11s.1-.11.27-.13.46-.11.68-.18l.46-.13.2.22.74.87a2.83,2.83,0,0,0,.66.67,4.14,4.14,0,0,0,1-.5c1-.58,1.06-.62,1.06-.76s-.17-.57-.37-1.13l-.38-1,.53-.54.53-.54.17.07c.69.27,1.92.7,2,.7s.18-.05.76-1.06a4.14,4.14,0,0,0,.5-1,4.67,4.67,0,0,0-.88-.84,6.37,6.37,0,0,1-.85-.79s.08-.35.17-.71.19-.65.26-.68.54-.11,1.09-.21a7.21,7.21,0,0,0,1.12-.24c.11-.07.11-.08.11-1.22s0-1.15-.11-1.22a8.59,8.59,0,0,0-1.12-.24c-.55-.1-1-.19-1.09-.21s-.14-.2-.26-.68-.17-.67-.17-.71a8,8,0,0,1,.85-.79A1,1,0,0,0,22,6.58a1,1,0,0,0-.5-.76c-.58-1-.62-1.07-.76-1.07s-1.31.43-2,.7l-.17.07L18.05,5l-.53-.54.38-1c.14-.37.27-.75.38-1.13,0-.14-.06-.18-1.07-.76a4.14,4.14,0,0,0-1-.5,2.83,2.83,0,0,0-.66.67c-.3.36-.64.75-.74.88l-.2.22-.46-.14c-.25-.08-.56-.15-.68-.18s-.24-.06-.27-.13-.12-.56-.21-1.11A8.27,8.27,0,0,0,12.73.11C12.67,0,12.65,0,11.52,0S10.38,0,10.31.08Zm2,6.08a5.24,5.24,0,0,1,3,1.53,5.28,5.28,0,0,1,1.59,4.07,5.35,5.35,0,0,1-.39,1.76A5.41,5.41,0,0,1,6.34,9.93,5.64,5.64,0,0,1,7,8.48,7.41,7.41,0,0,1,8.5,7,5.44,5.44,0,0,1,12.36,6.16Z"></path></svg><span aria-hidden="true">Cookie settings</span></a></div></div><script type="text/javascript" id="" charset="">window.uetq=window.uetq||[];window.uetq.push("consent","update",{ad_storage:google_tag_manager["rm"]["2084770"](77)});</script><div style="visibility: hidden; position: absolute; width: 100%; top: -10000px; left: 0px; right: 0px; transition: visibility linear 0.3s, opacity 0.3s linear; opacity: 0;"><div style="width: 100%; height: 100%; position: fixed; top: 0px; left: 0px; z-index: 2000000000; background-color: rgb(255, 255, 255); opacity: 0.5;"></div><div style="margin: 0px auto; top: 0px; left: 0px; right: 0px; position: fixed; border: 1px solid rgb(204, 204, 204); z-index: 2000000000; background-color: rgb(255, 255, 255);"><iframe title="recaptcha challenge expires in two minutes" name="c-tjclfhbhy0xh" frameborder="0" scrolling="no" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation" src="https://www.google.com/recaptcha/api2/bframe?hl=en&amp;v=MerVUtRoajKEbP7pLiGXkL28&amp;k=6Ldw6DYUAAAAACFCNmvsT32P6VPVonpjbSS7XTA9&amp;bft=0dAFcWeA6HDGVsJM-Cc6RU4JAVTljrXsXOxy5l_PbrznaR85YtOXHnAOKr6y5xWyx0u8hChfN7XeFJc6BZBzf-92x9NJZsdg6WEw" style="width: 100%; height: 100%;"></iframe></div></div></body>                                

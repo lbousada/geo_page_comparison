@@ -10,6 +10,7 @@ import tempfile
 from datetime import datetime
 from http.client import HTTPSConnection
 from pathlib import Path
+from statistics import mean, median
 from typing import Iterable
 from urllib.parse import urlsplit, urlunsplit
 
@@ -28,12 +29,16 @@ SF_PROJECT_INSTANCE_DATA = SF_CONFIG_DIR / "ProjectInstanceData"
 OUTPUT_DIR = Path(r"C:\Users\lbousada\OneDrive - BHEP\Desktop\GEO")
 OUTPUT_FILE_PREFIX = "geo_screamingfrog_audit"
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
-PROMPT = "I want to become a therapist, but don't have a lot of money or time. How can I earn an accredited graduate degree at my own pace online. I live in Ontario."
+QUERIES = [
+    "accelerated online MBA Canada working professionals",
+    "self-paced MBA Canada online MBA programs",
+    "Canada online MBA flexible pace executive MBA online Canada Athabasca Laurentian Queen's MBA online",
+    "accelerated MBA programs Canada working professionals",
+]
 EMBEDDING_MODEL = "text-embedding-3-small"
-RELEVANT_CHUNK_THRESHOLD = 0.75
 
 INPUT_URLS = [
-    "https://adler.ca/academic-calendar/academic-calendar/academic-programs/transitional-equivalency-program-teq",
+    "https://ufred.ca/programs/business/accelerated-mba",
 
 ]
 
@@ -100,8 +105,12 @@ def get_openai_api_key() -> str:
     return api_key
 
 
-def get_prompt_embedding(prompt: str = PROMPT) -> list[float]:
-    payload = json.dumps({"model": EMBEDDING_MODEL, "input": prompt})
+def get_query_embeddings(queries: list[str] = QUERIES) -> list[list[float]]:
+    cleaned_queries = [query.strip() for query in queries if query.strip()]
+    if not cleaned_queries:
+        raise ValueError("Set at least one non-empty query in QUERIES.")
+
+    payload = json.dumps({"model": EMBEDDING_MODEL, "input": cleaned_queries})
     connection = HTTPSConnection("api.openai.com", timeout=60)
 
     try:
@@ -123,7 +132,8 @@ def get_prompt_embedding(prompt: str = PROMPT) -> list[float]:
         raise RuntimeError(f"OpenAI embeddings request failed: {response_body}")
 
     data = json.loads(response_body)
-    return parseEmbedding(data["data"][0]["embedding"])
+    embeddings_by_index = sorted(data["data"], key=lambda item: item["index"])
+    return [parseEmbedding(item["embedding"]) for item in embeddings_by_index]
 
 
 def run_sf_crawl(
@@ -348,7 +358,7 @@ def cosineSimilarity(a: list[float], b: list[float]) -> float:
 
 def extractChunkEmbeddings(
     passageEmbeddingsField: object,
-) -> tuple[list[tuple[list[float], str]], list[str]]:
+) -> tuple[list[list[float]], list[str]]:
     warnings: list[str] = []
     if is_blank(passageEmbeddingsField):
         return [], ["Passage Embeddings 1 is missing."]
@@ -367,17 +377,14 @@ def extractChunkEmbeddings(
     if not isinstance(chunks, list):
         raise ValueError("Passage Embeddings 1 does not contain a chunks array.")
 
-    chunk_embeddings: list[tuple[list[float], str]] = []
+    chunk_embeddings: list[list[float]] = []
     for index, chunk in enumerate(chunks):
         if not isinstance(chunk, dict):
             warnings.append(f"Chunk {index} is not an object.")
             continue
 
         try:
-            chunk_text = ""
-            if not is_blank(chunk.get("text")):
-                chunk_text = str(chunk.get("text")).strip()
-            chunk_embeddings.append((parseEmbedding(chunk.get("embedding")), chunk_text))
+            chunk_embeddings.append(parseEmbedding(chunk.get("embedding")))
         except ValueError as exc:
             warnings.append(f"Chunk {index} embedding invalid: {exc}")
 
@@ -387,17 +394,21 @@ def extractChunkEmbeddings(
     return chunk_embeddings, warnings
 
 
-def scorePageAgainstPrompt(
-    promptEmbedding: list[float],
+def summarize_scores(scores: list[float]) -> tuple[float | object, float | object]:
+    if not scores:
+        return pd.NA, pd.NA
+    return mean(scores), median(scores)
+
+
+def scorePageAgainstQueries(
+    queryEmbeddings: list[list[float]],
     page: dict[str, object],
-    threshold: float = RELEVANT_CHUNK_THRESHOLD,
 ) -> dict[str, object]:
     scores: dict[str, object] = {
-        "page_similarity": pd.NA,
-        "max_chunk_similarity": pd.NA,
-        "max_chunk_content": pd.NA,
-        "avg_top_3_chunk_similarity": pd.NA,
-        "relevant_chunk_count": pd.NA,
+        "page_similarity_mean": pd.NA,
+        "page_similarity_median": pd.NA,
+        "max_chunk_similarity_mean": pd.NA,
+        "max_chunk_similarity_median": pd.NA,
         "embedding_similarity_warning": pd.NA,
         "embedding_similarity_error": pd.NA,
     }
@@ -407,7 +418,13 @@ def scorePageAgainstPrompt(
         page_embedding = parseEmbedding(
             get_first_existing_value(page, ["Extract embeddings from page content"])
         )
-        scores["page_similarity"] = cosineSimilarity(promptEmbedding, page_embedding)
+        page_similarities = [
+            cosineSimilarity(query_embedding, page_embedding)
+            for query_embedding in queryEmbeddings
+        ]
+        page_mean, page_median = summarize_scores(page_similarities)
+        scores["page_similarity_mean"] = page_mean
+        scores["page_similarity_median"] = page_median
     except ValueError as exc:
         warnings.append(f"Page embedding invalid: {exc}")
 
@@ -417,22 +434,18 @@ def scorePageAgainstPrompt(
         )
         warnings.extend(chunk_warnings)
 
-        chunk_similarities = sorted(
-            (
-                (cosineSimilarity(promptEmbedding, chunk_embedding), chunk_text)
-                for chunk_embedding, chunk_text in chunk_embeddings
-            ),
-            key=lambda item: item[0],
-            reverse=True,
-        )
-        if chunk_similarities:
-            top_3 = [similarity for similarity, _ in chunk_similarities[:3]]
-            scores["max_chunk_similarity"] = chunk_similarities[0][0]
-            scores["max_chunk_content"] = chunk_similarities[0][1] or pd.NA
-            scores["avg_top_3_chunk_similarity"] = sum(top_3) / len(top_3)
-            scores["relevant_chunk_count"] = sum(
-                similarity >= threshold for similarity, _ in chunk_similarities
-            )
+        max_chunk_similarities = []
+        if chunk_embeddings:
+            for query_embedding in queryEmbeddings:
+                max_chunk_similarities.append(
+                    max(
+                        cosineSimilarity(query_embedding, chunk_embedding)
+                        for chunk_embedding in chunk_embeddings
+                    )
+                )
+        chunk_mean, chunk_median = summarize_scores(max_chunk_similarities)
+        scores["max_chunk_similarity_mean"] = chunk_mean
+        scores["max_chunk_similarity_median"] = chunk_median
     except ValueError as exc:
         warnings.append(f"Chunk embeddings invalid: {exc}")
 
@@ -442,30 +455,23 @@ def scorePageAgainstPrompt(
     return scores
 
 
-def scorePagesAgainstPrompt(
-    promptEmbedding: list[float],
+def scorePagesAgainstQueries(
+    queryEmbeddings: list[list[float]],
     pages: list[dict[str, object]],
-    options: dict[str, object] | None = None,
 ) -> list[dict[str, object]]:
-    threshold_value = (options or {}).get(
-        "relevant_chunk_threshold",
-        RELEVANT_CHUNK_THRESHOLD,
-    )
-    threshold = float(str(threshold_value))
     scored_pages: list[dict[str, object]] = []
 
     for page in pages:
         scored_page = dict(page)
         try:
-            scored_page.update(scorePageAgainstPrompt(promptEmbedding, page, threshold))
+            scored_page.update(scorePageAgainstQueries(queryEmbeddings, page))
         except Exception as exc:
             scored_page.update(
                 {
-                    "page_similarity": pd.NA,
-                    "max_chunk_similarity": pd.NA,
-                    "max_chunk_content": pd.NA,
-                    "avg_top_3_chunk_similarity": pd.NA,
-                    "relevant_chunk_count": pd.NA,
+                    "page_similarity_mean": pd.NA,
+                    "page_similarity_median": pd.NA,
+                    "max_chunk_similarity_mean": pd.NA,
+                    "max_chunk_similarity_median": pd.NA,
                     "embedding_similarity_warning": pd.NA,
                     "embedding_similarity_error": str(exc),
                 }
@@ -772,11 +778,10 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
         "Resolution Chain",
         "Address",
         "Missing Alt Image Count",
-        "page_similarity",
-        "max_chunk_similarity",
-        "max_chunk_content",
-        "avg_top_3_chunk_similarity",
-        "relevant_chunk_count",
+        "page_similarity_mean",
+        "page_similarity_median",
+        "max_chunk_similarity_mean",
+        "max_chunk_similarity_median",
         "embedding_similarity_warning",
         "embedding_similarity_error",
         *SEMANTIC_COLUMNS,
@@ -797,8 +802,8 @@ def main() -> int:
     prepare_final_output_folder()
 
     rows = [process_url(url) for url in INPUT_URLS]
-    prompt_embedding = get_prompt_embedding(PROMPT)
-    scored_rows = scorePagesAgainstPrompt(prompt_embedding, rows)
+    query_embeddings = get_query_embeddings(QUERIES)
+    scored_rows = scorePagesAgainstQueries(query_embeddings, rows)
     final_df = order_columns(pd.DataFrame(scored_rows))
     output_file = get_timestamped_output_file()
 
