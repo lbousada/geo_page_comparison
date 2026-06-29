@@ -7,6 +7,7 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import time
 from datetime import datetime
 from http.client import HTTPSConnection
 from pathlib import Path
@@ -15,6 +16,15 @@ from typing import Iterable
 from urllib.parse import urlsplit, urlunsplit
 
 import pandas as pd
+from selenium.webdriver.remote.webdriver import WebDriver
+
+from backlink_getter import (
+    WAIT_SECONDS_ON_TARGET_PAGE,
+    build_driver,
+    build_target_url,
+    get_referring_domains_count,
+    login as login_to_semrush,
+)
 
 
 SF_CLI = Path(
@@ -30,15 +40,13 @@ OUTPUT_DIR = Path(r"C:\Users\lbousada\OneDrive - BHEP\Desktop\GEO")
 OUTPUT_FILE_PREFIX = "geo_screamingfrog_audit"
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
 QUERIES = [
-    "accelerated online MBA Canada working professionals",
-    "self-paced MBA Canada online MBA programs",
-    "Canada online MBA flexible pace executive MBA online Canada Athabasca Laurentian Queen's MBA online",
-    "accelerated MBA programs Canada working professionals",
+"accelerated online MBA Canada working professionals self-paced MBA Canada online MBA programs","Canada online MBA flexible pace executive MBA online Canada Athabasca Laurentian Queen's MBA online","accelerated MBA programs Canada working professionals","online MBA programs Canada self-paced","accelerated MBA programs Canada working professionals","online MBA programs Canada self-paced","accelerated online MBA Canada working professionals self-paced MBA Canada online MBA programs Canada duration","Canada online MBA flexible pace accelerated MBA Athabasca Laurentian Royal Roads MBA online","accelerated MBA programs Canada working professionals","online MBA programs Canada self-paced","Canada accelerated MBA online self-paced working professionals MBA Canada online MBA programs duration","online MBA Canada working professionals asynchronous self-paced MBA Canada universities online MBA","accelerated MBA Canada online part time MBA working professionals Canada online MBA Canada schools accelerated MBA Canada","accelerated MBA programs Canada working professionals","online MBA programs Canada self-paced","accelerated MBA programs in Canada for working professionals online self-paced Canada MBA programs","Canadian MBAs online accelerated part-time MBA Canada working professionals online program","Canadian accelerated online MBA programs for working professionals Canada online MBA and accelerated MBA Canada list","Canadian universities MBA part time online accelerated program Canada online MBA Canada flexible","accelerated MBA Canada online part time self paced MBA Canada working professionals online MBA Canada flexible","accelerated MBA programs Canada working professionals","online MBA programs Canada self-paced"
+
 ]
 EMBEDDING_MODEL = "text-embedding-3-small"
 
 INPUT_URLS = [
-    "https://ufred.ca/programs/business/accelerated-mba",
+    "https://www.yorkvilleu.ca/master-of-business-administration/","https://ufred.ca/programs/business/accelerated-mba","https://coursecompare.ca/best-online-mba-canada","https://ivey.uwo.ca/amba","https://smith.queensu.ca/mba_programs/amba/index.php","https://tutorlyft.com/blogs/best-online-mba-programs-canada","https://ibu.ca/online-mba","https://online.unb.ca/master-of-business-administration","https://athabascau.ca/programs/summary/master-of-business-administration.html","https://coursecompare.ca/part-time-mba","https://smith.queensu.ca/mba_programs/gomba/landing.php"
 
 ]
 
@@ -596,6 +604,49 @@ def extract_no_render_word_count(
     }
 
 
+def build_logged_in_semrush_driver() -> WebDriver | None:
+    driver: WebDriver | None = None
+    try:
+        driver = build_driver()
+        login_to_semrush(driver)
+        return driver
+    except Exception as exc:
+        if driver is not None:
+            driver.quit()
+        print(f"Warning: Semrush login failed; defaulting referring_domains to 0: {exc}")
+        return None
+
+
+def get_referring_domains_for_url(
+    semrush_driver: WebDriver | None,
+    resolved_url: str,
+) -> int:
+    if semrush_driver is None or is_blank(resolved_url):
+        return 0
+
+    original_handle: str | None = None
+    try:
+        original_handle = semrush_driver.current_window_handle
+        semrush_driver.switch_to.new_window("tab")
+        semrush_driver.get(build_target_url(resolved_url))
+        time.sleep(WAIT_SECONDS_ON_TARGET_PAGE)
+        return get_referring_domains_count(semrush_driver)
+    except Exception as exc:
+        print(
+            f"Warning: could not fetch referring_domains for {resolved_url}; "
+            f"defaulting to 0: {exc}"
+        )
+        return 0
+    finally:
+        try:
+            if len(semrush_driver.window_handles) > 1:
+                semrush_driver.close()
+            if original_handle in semrush_driver.window_handles:
+                semrush_driver.switch_to.window(original_handle)
+        except Exception:
+            pass
+
+
 def snapshot_screamingfrog_project_instances() -> set[str]:
     if not SF_PROJECT_INSTANCE_DATA.exists():
         return set()
@@ -698,7 +749,7 @@ def resolve_page_only_chain(
     raise RuntimeError("Page-only resolution chain ended unexpectedly.")
 
 
-def process_url(url: str) -> dict[str, object]:
+def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]:
     before_snapshot = snapshot_screamingfrog_project_instances()
 
     try:
@@ -736,6 +787,10 @@ def process_url(url: str) -> dict[str, object]:
             )
             merged["Input URL"] = url
             merged["Resolved URL"] = resolved_url
+            merged["referring_domains"] = get_referring_domains_for_url(
+                semrush_driver,
+                resolved_url,
+            )
             merged["Resolution Method"] = resolution["resolution_method"]
             merged["Redirect Target"] = resolution["redirect_target"]
             merged["Canonical Target"] = resolution["canonical_target"]
@@ -748,6 +803,7 @@ def process_url(url: str) -> dict[str, object]:
         return {
             "Input URL": url,
             "Resolved URL": pd.NA,
+            "referring_domains": 0,
             "Resolution Method": pd.NA,
             "Redirect Target": pd.NA,
             "Canonical Target": pd.NA,
@@ -758,6 +814,7 @@ def process_url(url: str) -> dict[str, object]:
         return {
             "Input URL": url,
             "Resolved URL": pd.NA,
+            "referring_domains": 0,
             "Resolution Method": pd.NA,
             "Redirect Target": pd.NA,
             "Canonical Target": pd.NA,
@@ -776,6 +833,7 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
         "Redirect Target",
         "Canonical Target",
         "Resolution Chain",
+        "referring_domains",
         "Address",
         "Missing Alt Image Count",
         "page_similarity_mean",
@@ -801,7 +859,13 @@ def main() -> int:
 
     prepare_final_output_folder()
 
-    rows = [process_url(url) for url in INPUT_URLS]
+    semrush_driver = build_logged_in_semrush_driver()
+    try:
+        rows = [process_url(url, semrush_driver) for url in INPUT_URLS]
+    finally:
+        if semrush_driver is not None:
+            semrush_driver.quit()
+
     query_embeddings = get_query_embeddings(QUERIES)
     scored_rows = scorePagesAgainstQueries(query_embeddings, rows)
     final_df = order_columns(pd.DataFrame(scored_rows))
