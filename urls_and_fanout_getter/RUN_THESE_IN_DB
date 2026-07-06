@@ -1,0 +1,2 @@
+Use the sql query to get the losing prompts, then use the scripts in db to find the URLs and
+fanout associated with the prompt for a given time period.

@@ -3,65 +3,45 @@ from __future__ import annotations
 import json
 import math
 import os
-import re
 import shutil
 import stat
 import subprocess
 import tempfile
-import time
 from datetime import datetime
 from http.client import HTTPSConnection
 from pathlib import Path
-from statistics import mean, median
-from typing import Iterable, cast
+from typing import Iterable
 from urllib.parse import urlsplit, urlunsplit
 
 import pandas as pd
-from selenium.webdriver.remote.webdriver import WebDriver
-
-try:
-    from backlink_getter import (
-        WAIT_SECONDS_ON_TARGET_PAGE,
-        build_driver,
-        build_target_url,
-        get_referring_domains_count,
-        login as login_to_semrush,
-    )
-except ModuleNotFoundError:
-    from scripts.backlink_getter import (
-        WAIT_SECONDS_ON_TARGET_PAGE,
-        build_driver,
-        build_target_url,
-        get_referring_domains_count,
-        login as login_to_semrush,
-    )
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
 SF_CLI = Path(
     r"C:\Program Files (x86)\Screaming Frog SEO Spider\ScreamingFrogSEOSpiderCli.exe"
 )
+REPO_ROOT = Path(__file__).resolve().parents[1]
 CRAWL_CONFIG_DIR = REPO_ROOT / "crawl_configs"
-PAGE_ONLY_CONFIG = CRAWL_CONFIG_DIR / "cc_page_only.seospiderconfig"
-SEMANTICS_CONFIG = CRAWL_CONFIG_DIR / "cc_semantics_crawl.seospiderconfig"
-NO_RENDER_CONFIG = CRAWL_CONFIG_DIR / "cc_no_render.seospiderconfig"
+PROMPT_SEMANTICS_CONFIG = CRAWL_CONFIG_DIR / "cc_prompt_semantics.seospiderconfig"
 SF_USER_DATA_DIR = Path(r"C:\Users\lbousada\.ScreamingFrogSEOSpider")
 SF_PROJECT_INSTANCE_DATA = SF_USER_DATA_DIR / "ProjectInstanceData"
 
-OUTPUT_DIR = Path(r"C:\Users\lbousada\OneDrive - BHEP\Desktop\GEO\GEO Levers Data")
-OUTPUT_FILE_PREFIX = "geo_screamingfrog_audit"
-URLS_CSV = Path("raw_inputs/Losing_URLs - Sample.csv")
-FANOUT_QUERIES_CSV = Path("raw_inputs/Fanout_Queries - Sample.csv")
-PROMPT_NAMES_CSV = Path("raw_inputs/Prompt_Names.csv")
+OUTPUT_DIR = Path(r"C:\Users\lbousada\OneDrive - BHEP\Desktop\GEO")
+OUTPUT_FILE_PREFIX = "master_prompt_similarity"
+INPUT_URLS_CSV = Path("raw_inputs/Losing_URLs - Master.csv")
 ENV_FILE = REPO_ROOT / ".env"
 EMBEDDING_MODEL = "text-embedding-3-small"
+RELEVANT_CHUNK_THRESHOLD = 0.75
 PROMPT_COLUMN = "prompt"
-PROMPT_ID_COLUMN = "promt_id"
 URL_COLUMN = "url"
-FANOUT_PROMPT_COLUMN = "Prompt"
-QUERY_COLUMN = "Query"
-PROMPT_NAME_COLUMN = "Prompt No"
-PROMPT_NAME_CONTENT_COLUMN = "content"
+SIMILARITY_COLUMNS = [
+    "page_similarity",
+    "max_chunk_similarity",
+    "max_chunk_content",
+    "avg_top_3_chunk_similarity",
+    "relevant_chunk_count",
+    "embedding_similarity_warning",
+    "embedding_similarity_error",
+]
 
 SEMANTIC_COLUMNS = [
     "Extract embeddings from page content",
@@ -126,12 +106,11 @@ def get_openai_api_key() -> str:
     return api_key
 
 
-def get_query_embeddings(queries: list[str]) -> list[list[float]]:
-    cleaned_queries = [query.strip() for query in queries if query.strip()]
-    if not cleaned_queries:
-        raise ValueError("Set at least one non-empty query in QUERIES.")
+def get_prompt_embedding(prompt: str) -> list[float]:
+    if is_blank(prompt):
+        raise ValueError("Prompt is blank.")
 
-    payload = json.dumps({"model": EMBEDDING_MODEL, "input": cleaned_queries})
+    payload = json.dumps({"model": EMBEDDING_MODEL, "input": prompt})
     connection = HTTPSConnection("api.openai.com", timeout=60)
 
     try:
@@ -153,8 +132,7 @@ def get_query_embeddings(queries: list[str]) -> list[list[float]]:
         raise RuntimeError(f"OpenAI embeddings request failed: {response_body}")
 
     data = json.loads(response_body)
-    embeddings_by_index = sorted(data["data"], key=lambda item: item["index"])
-    return [parseEmbedding(item["embedding"]) for item in embeddings_by_index]
+    return parseEmbedding(data["data"][0]["embedding"])
 
 
 def run_sf_crawl(
@@ -379,7 +357,7 @@ def cosineSimilarity(a: list[float], b: list[float]) -> float:
 
 def extractChunkEmbeddings(
     passageEmbeddingsField: object,
-) -> tuple[list[list[float]], list[str]]:
+) -> tuple[list[tuple[list[float], str]], list[str]]:
     warnings: list[str] = []
     if is_blank(passageEmbeddingsField):
         return [], ["Passage Embeddings 1 is missing."]
@@ -398,14 +376,17 @@ def extractChunkEmbeddings(
     if not isinstance(chunks, list):
         raise ValueError("Passage Embeddings 1 does not contain a chunks array.")
 
-    chunk_embeddings: list[list[float]] = []
+    chunk_embeddings: list[tuple[list[float], str]] = []
     for index, chunk in enumerate(chunks):
         if not isinstance(chunk, dict):
             warnings.append(f"Chunk {index} is not an object.")
             continue
 
         try:
-            chunk_embeddings.append(parseEmbedding(chunk.get("embedding")))
+            chunk_text = ""
+            if not is_blank(chunk.get("text")):
+                chunk_text = str(chunk.get("text")).strip()
+            chunk_embeddings.append((parseEmbedding(chunk.get("embedding")), chunk_text))
         except ValueError as exc:
             warnings.append(f"Chunk {index} embedding invalid: {exc}")
 
@@ -415,21 +396,17 @@ def extractChunkEmbeddings(
     return chunk_embeddings, warnings
 
 
-def summarize_scores(scores: list[float]) -> tuple[float | object, float | object]:
-    if not scores:
-        return pd.NA, pd.NA
-    return mean(scores), median(scores)
-
-
-def scorePageAgainstQueries(
-    queryEmbeddings: list[list[float]],
+def scorePageAgainstPrompt(
+    promptEmbedding: list[float],
     page: dict[str, object],
+    threshold: float = RELEVANT_CHUNK_THRESHOLD,
 ) -> dict[str, object]:
     scores: dict[str, object] = {
-        "page_similarity_mean": pd.NA,
-        "page_similarity_median": pd.NA,
-        "max_chunk_similarity_mean": pd.NA,
-        "max_chunk_similarity_median": pd.NA,
+        "page_similarity": pd.NA,
+        "max_chunk_similarity": pd.NA,
+        "max_chunk_content": pd.NA,
+        "avg_top_3_chunk_similarity": pd.NA,
+        "relevant_chunk_count": pd.NA,
         "embedding_similarity_warning": pd.NA,
         "embedding_similarity_error": pd.NA,
     }
@@ -439,13 +416,7 @@ def scorePageAgainstQueries(
         page_embedding = parseEmbedding(
             get_first_existing_value(page, ["Extract embeddings from page content"])
         )
-        page_similarities = [
-            cosineSimilarity(query_embedding, page_embedding)
-            for query_embedding in queryEmbeddings
-        ]
-        page_mean, page_median = summarize_scores(page_similarities)
-        scores["page_similarity_mean"] = page_mean
-        scores["page_similarity_median"] = page_median
+        scores["page_similarity"] = cosineSimilarity(promptEmbedding, page_embedding)
     except ValueError as exc:
         warnings.append(f"Page embedding invalid: {exc}")
 
@@ -455,18 +426,22 @@ def scorePageAgainstQueries(
         )
         warnings.extend(chunk_warnings)
 
-        max_chunk_similarities = []
-        if chunk_embeddings:
-            for query_embedding in queryEmbeddings:
-                max_chunk_similarities.append(
-                    max(
-                        cosineSimilarity(query_embedding, chunk_embedding)
-                        for chunk_embedding in chunk_embeddings
-                    )
-                )
-        chunk_mean, chunk_median = summarize_scores(max_chunk_similarities)
-        scores["max_chunk_similarity_mean"] = chunk_mean
-        scores["max_chunk_similarity_median"] = chunk_median
+        chunk_similarities = sorted(
+            (
+                (cosineSimilarity(promptEmbedding, chunk_embedding), chunk_text)
+                for chunk_embedding, chunk_text in chunk_embeddings
+            ),
+            key=lambda item: item[0],
+            reverse=True,
+        )
+        if chunk_similarities:
+            top_3 = [similarity for similarity, _ in chunk_similarities[:3]]
+            scores["max_chunk_similarity"] = chunk_similarities[0][0]
+            scores["max_chunk_content"] = chunk_similarities[0][1] or pd.NA
+            scores["avg_top_3_chunk_similarity"] = sum(top_3) / len(top_3)
+            scores["relevant_chunk_count"] = sum(
+                similarity >= threshold for similarity, _ in chunk_similarities
+            )
     except ValueError as exc:
         warnings.append(f"Chunk embeddings invalid: {exc}")
 
@@ -476,23 +451,30 @@ def scorePageAgainstQueries(
     return scores
 
 
-def scorePagesAgainstQueries(
-    queryEmbeddings: list[list[float]],
+def scorePagesAgainstPrompt(
+    promptEmbedding: list[float],
     pages: list[dict[str, object]],
+    options: dict[str, object] | None = None,
 ) -> list[dict[str, object]]:
+    threshold_value = (options or {}).get(
+        "relevant_chunk_threshold",
+        RELEVANT_CHUNK_THRESHOLD,
+    )
+    threshold = float(str(threshold_value))
     scored_pages: list[dict[str, object]] = []
 
     for page in pages:
         scored_page = dict(page)
         try:
-            scored_page.update(scorePageAgainstQueries(queryEmbeddings, page))
+            scored_page.update(scorePageAgainstPrompt(promptEmbedding, page, threshold))
         except Exception as exc:
             scored_page.update(
                 {
-                    "page_similarity_mean": pd.NA,
-                    "page_similarity_median": pd.NA,
-                    "max_chunk_similarity_mean": pd.NA,
-                    "max_chunk_similarity_median": pd.NA,
+                    "page_similarity": pd.NA,
+                    "max_chunk_similarity": pd.NA,
+                    "max_chunk_content": pd.NA,
+                    "avg_top_3_chunk_similarity": pd.NA,
+                    "relevant_chunk_count": pd.NA,
                     "embedding_similarity_warning": pd.NA,
                     "embedding_similarity_error": str(exc),
                 }
@@ -617,49 +599,6 @@ def extract_no_render_word_count(
     }
 
 
-def build_logged_in_semrush_driver() -> WebDriver | None:
-    driver: WebDriver | None = None
-    try:
-        driver = build_driver()
-        login_to_semrush(driver)
-        return driver
-    except Exception as exc:
-        if driver is not None:
-            driver.quit()
-        print(f"Warning: Semrush login failed; defaulting referring_domains to 0: {exc}")
-        return None
-
-
-def get_referring_domains_for_url(
-    semrush_driver: WebDriver | None,
-    resolved_url: str,
-) -> int:
-    if semrush_driver is None or is_blank(resolved_url):
-        return 0
-
-    original_handle: str | None = None
-    try:
-        original_handle = semrush_driver.current_window_handle
-        semrush_driver.switch_to.new_window("tab")
-        semrush_driver.get(build_target_url(resolved_url))
-        time.sleep(WAIT_SECONDS_ON_TARGET_PAGE)
-        return get_referring_domains_count(semrush_driver)
-    except Exception as exc:
-        print(
-            f"Warning: could not fetch referring_domains for {resolved_url}; "
-            f"defaulting to 0: {exc}"
-        )
-        return 0
-    finally:
-        try:
-            if len(semrush_driver.window_handles) > 1:
-                semrush_driver.close()
-            if original_handle in semrush_driver.window_handles:
-                semrush_driver.switch_to.window(original_handle)
-        except Exception:
-            pass
-
-
 def snapshot_screamingfrog_project_instances() -> set[str]:
     if not SF_PROJECT_INSTANCE_DATA.exists():
         return set()
@@ -715,105 +654,19 @@ def require_columns(dataframe: pd.DataFrame, columns: Iterable[str], source: Pat
         raise KeyError(f"{source} is missing required columns: {missing_columns}")
 
 
-def read_prompt_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    urls_csv = resolve_repo_relative_path(URLS_CSV)
-    fanout_queries_csv = resolve_repo_relative_path(FANOUT_QUERIES_CSV)
-    prompt_names_csv = resolve_repo_relative_path(PROMPT_NAMES_CSV)
-
-    urls_df = pd.read_csv(urls_csv, encoding="utf-8-sig")
-    fanout_queries_df = pd.read_csv(fanout_queries_csv, encoding="utf-8-sig")
-    prompt_names_df = pd.read_csv(prompt_names_csv, encoding="utf-8-sig")
-
-    require_columns(urls_df, [PROMPT_COLUMN, URL_COLUMN], urls_csv)
-    require_columns(
-        fanout_queries_df,
-        [FANOUT_PROMPT_COLUMN, QUERY_COLUMN],
-        fanout_queries_csv,
-    )
-    require_columns(
-        prompt_names_df,
-        [PROMPT_NAME_COLUMN, PROMPT_NAME_CONTENT_COLUMN],
-        prompt_names_csv,
-    )
-
-    return urls_df, fanout_queries_df, prompt_names_df
+def read_input_urls() -> pd.DataFrame:
+    input_csv = resolve_repo_relative_path(INPUT_URLS_CSV)
+    input_df = pd.read_csv(input_csv, encoding="utf-8-sig")
+    require_columns(input_df, [PROMPT_COLUMN, URL_COLUMN], input_csv)
+    return input_df
 
 
-def unique_nonblank_values(values: Iterable[object]) -> list[str]:
-    unique_values: list[str] = []
-    seen_values: set[str] = set()
-
-    for value in values:
-        if is_blank(value):
-            continue
-
-        cleaned_value = str(value).strip()
-        if cleaned_value in seen_values:
-            continue
-
-        seen_values.add(cleaned_value)
-        unique_values.append(cleaned_value)
-
-    return unique_values
-
-
-def get_prompt_id(fanout_rows: pd.DataFrame) -> object:
-    if PROMPT_ID_COLUMN not in fanout_rows.columns:
-        return pd.NA
-
-    prompt_ids = unique_nonblank_values(fanout_rows[PROMPT_ID_COLUMN])
-    return prompt_ids[0] if prompt_ids else pd.NA
-
-
-def build_prompt_name_lookup(prompt_names_df: pd.DataFrame) -> dict[str, str]:
-    lookup: dict[str, str] = {}
-    for row in prompt_names_df.to_dict("records"):
-        content = row.get(PROMPT_NAME_CONTENT_COLUMN)
-        prompt_name = row.get(PROMPT_NAME_COLUMN)
-        if is_blank(content) or is_blank(prompt_name):
-            continue
-        lookup[str(content).strip()] = str(prompt_name).strip()
-    return lookup
-
-
-def iter_prompt_jobs(
-    urls_df: pd.DataFrame,
-    fanout_queries_df: pd.DataFrame,
-    prompt_names_df: pd.DataFrame,
-) -> Iterable[dict[str, object]]:
-    prompts = unique_nonblank_values(urls_df[PROMPT_COLUMN])
-    prompt_name_lookup = build_prompt_name_lookup(prompt_names_df)
-
-    for prompt_index, prompt in enumerate(prompts, start=1):
-        url_rows = urls_df.loc[urls_df[PROMPT_COLUMN].eq(prompt)]
-        fanout_rows = fanout_queries_df.loc[
-            fanout_queries_df[FANOUT_PROMPT_COLUMN].eq(prompt)
-        ]
-
-        yield {
-            "prompt_index": prompt_index,
-            "prompt": prompt,
-            "prompt_id": get_prompt_id(fanout_rows),
-            "prompt_name": prompt_name_lookup.get(prompt, f"Prompt {prompt_index}"),
-            "input_urls": unique_nonblank_values(url_rows[URL_COLUMN]),
-            "queries": unique_nonblank_values(fanout_rows[QUERY_COLUMN]),
-        }
-
-
-def safe_filename_part(value: object, max_length: int = 20) -> str:
-    cleaned_value = re.sub(r"[^A-Za-z0-9._-]+", "_", str(value)).strip("._-")
-    if not cleaned_value:
-        return "prompt"
-    return cleaned_value[:max_length].strip("._-") or "prompt"
-
-
-def get_timestamped_output_file(prompt_name: str) -> Path:
+def get_timestamped_output_file() -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    prompt_slug = safe_filename_part(prompt_name)
-    return OUTPUT_DIR / f"{prompt_slug}_{timestamp}.xlsx"
+    return OUTPUT_DIR / f"{OUTPUT_FILE_PREFIX} {timestamp}.xlsx"
 
 
-def resolve_page_only_chain(
+def resolve_prompt_semantics_chain(
     input_url: str,
     tmp_path: Path,
 ) -> tuple[pd.DataFrame, dict[str, object]]:
@@ -824,12 +677,17 @@ def resolve_page_only_chain(
     last_internal_df: pd.DataFrame | None = None
 
     for attempt in range(1, MAX_PAGE_ONLY_RESOLUTION_CRAWLS + 1):
-        page_output = tmp_path / f"page_only_{attempt}"
+        page_output = tmp_path / f"prompt_semantics_{attempt}"
         print(
-            f"Running Page Only resolution crawl {attempt}/"
+            f"Running Prompt Semantics resolution crawl {attempt}/"
             f"{MAX_PAGE_ONLY_RESOLUTION_CRAWLS} for {current_url}"
         )
-        run_sf_crawl(current_url, PAGE_ONLY_CONFIG, page_output, PAGE_ONLY_EXPORT_TABS)
+        run_sf_crawl(
+            current_url,
+            PROMPT_SEMANTICS_CONFIG,
+            page_output,
+            PAGE_ONLY_EXPORT_TABS,
+        )
 
         last_internal_df = load_internal_export(page_output)
         resolution = resolve_from_page_only_crawl(current_url, last_internal_df)
@@ -867,48 +725,18 @@ def resolve_page_only_chain(
     raise RuntimeError("Page-only resolution chain ended unexpectedly.")
 
 
-def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]:
+def process_url(url: str) -> dict[str, object]:
     before_snapshot = snapshot_screamingfrog_project_instances()
 
     try:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
-            semantics_output = tmp_path / "semantics"
-            no_render_output = tmp_path / "no_render"
-
-            page_internal_df, resolution = resolve_page_only_chain(url, tmp_path)
+            page_internal_df, resolution = resolve_prompt_semantics_chain(url, tmp_path)
             resolved_url = str(resolution["resolved_url"])
 
-            print(f"Running Semantics crawl for {resolved_url}")
-            run_sf_crawl(
-                resolved_url,
-                SEMANTICS_CONFIG,
-                semantics_output,
-                SEMANTICS_EXPORT_TABS,
-            )
-            semantics_internal_df = load_internal_export(semantics_output)
-
-            print(f"Running Rendering Off crawl for {resolved_url}")
-            run_sf_crawl(
-                resolved_url,
-                NO_RENDER_CONFIG,
-                no_render_output,
-                NO_RENDER_EXPORT_TABS,
-            )
-            no_render_internal_df = load_internal_export(no_render_output)
-
-            merged = merge_page_semantics_and_no_render(
-                page_internal_df,
-                semantics_internal_df,
-                no_render_internal_df,
-                resolved_url,
-            )
+            merged = single_row_dict(page_internal_df)
             merged["Input URL"] = url
             merged["Resolved URL"] = resolved_url
-            merged["referring_domains"] = get_referring_domains_for_url(
-                semrush_driver,
-                resolved_url,
-            )
             merged["Resolution Method"] = resolution["resolution_method"]
             merged["Redirect Target"] = resolution["redirect_target"]
             merged["Canonical Target"] = resolution["canonical_target"]
@@ -921,7 +749,6 @@ def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]
         return {
             "Input URL": url,
             "Resolved URL": pd.NA,
-            "referring_domains": 0,
             "Resolution Method": pd.NA,
             "Redirect Target": pd.NA,
             "Canonical Target": pd.NA,
@@ -932,7 +759,6 @@ def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]
         return {
             "Input URL": url,
             "Resolved URL": pd.NA,
-            "referring_domains": 0,
             "Resolution Method": pd.NA,
             "Redirect Target": pd.NA,
             "Canonical Target": pd.NA,
@@ -943,74 +769,55 @@ def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]
         cleanup_screamingfrog_crawl_if_possible(before_snapshot)
 
 
-def mark_embedding_error(
-    rows: list[dict[str, object]],
-    error: str,
-) -> list[dict[str, object]]:
-    for row in rows:
-        row["page_similarity_mean"] = pd.NA
-        row["page_similarity_median"] = pd.NA
-        row["max_chunk_similarity_mean"] = pd.NA
-        row["max_chunk_similarity_median"] = pd.NA
-        row["embedding_similarity_warning"] = pd.NA
-        row["embedding_similarity_error"] = error
-    return rows
+def blank_similarity_scores() -> dict[str, object]:
+    return {column: pd.NA for column in SIMILARITY_COLUMNS}
 
 
-def print_prompt_preview(
-    prompt_index: int,
-    prompt_name: str,
-    prompt: str,
-    input_urls: list[str],
-    queries: list[str],
+def score_prompt_against_url(prompt: object, url: object) -> dict[str, object]:
+    if is_blank(prompt) or is_blank(url):
+        print("Warning: row has blank prompt or URL; similarity fields set to blank.")
+        return blank_similarity_scores()
+
+    page = process_url(str(url).strip())
+    try:
+        prompt_embedding = get_prompt_embedding(str(prompt).strip())
+        scores = scorePageAgainstPrompt(prompt_embedding, page)
+        return {column: scores.get(column, pd.NA) for column in SIMILARITY_COLUMNS}
+    except Exception as exc:
+        print(f"Warning: could not score {url}; similarity fields set to blank: {exc}")
+        return blank_similarity_scores()
+
+
+def write_output_file(
+    input_df: pd.DataFrame,
+    metric_rows: list[dict[str, object]],
+    output_file: Path,
 ) -> None:
-    print(
-        "\n".join(
-            [
-                "",
-                f"Processing prompt {prompt_index} ({prompt_name})",
-                f"Prompt: {prompt}",
-                f"URLs ({len(input_urls)}):",
-                *(f"  - {url}" for url in input_urls),
-                f"Fanout queries ({len(queries)}):",
-                *(f"  - {query}" for query in queries),
-            ]
-        ),
-        flush=True,
+    metrics_df = pd.DataFrame(metric_rows, columns=SIMILARITY_COLUMNS)
+    metrics_df = metrics_df.reindex(range(len(input_df)))
+    final_df = pd.concat(
+        [input_df.reset_index(drop=True), metrics_df.reset_index(drop=True)],
+        axis=1,
     )
-
-
-def process_prompt(
-    prompt_job: dict[str, object],
-    semrush_driver: WebDriver | None,
-) -> Path:
-    prompt_index = int(cast(int, prompt_job["prompt_index"]))
-    prompt_name = str(cast(str, prompt_job["prompt_name"]))
-    prompt = str(cast(str, prompt_job["prompt"]))
-    input_urls = cast(list[str], prompt_job["input_urls"])
-    queries = cast(list[str], prompt_job["queries"])
-
-    print_prompt_preview(prompt_index, prompt_name, prompt, input_urls, queries)
-
-    rows = [process_url(str(url), semrush_driver) for url in input_urls]
-
-    if queries:
-        try:
-            query_embeddings = get_query_embeddings([str(query) for query in queries])
-            scored_rows = scorePagesAgainstQueries(query_embeddings, rows)
-        except Exception as exc:
-            scored_rows = mark_embedding_error(rows, str(exc))
-    else:
-        scored_rows = mark_embedding_error(rows, "No fanout queries found for prompt.")
-
-    final_df = order_columns(pd.DataFrame(scored_rows))
-    output_file = get_timestamped_output_file(prompt_name)
 
     with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
         final_df.to_excel(writer, sheet_name="Audit", index=False)
 
-    print(f"Saved prompt audit: {output_file}")
-    return output_file
+
+def build_similarity_metrics(
+    input_df: pd.DataFrame,
+    output_file: Path,
+) -> pd.DataFrame:
+    metric_rows: list[dict[str, object]] = []
+
+    for row_number, (_, row) in enumerate(input_df.iterrows(), start=1):
+        url = row[URL_COLUMN]
+        print(f"Processing row {row_number}/{len(input_df)}: {url}")
+        metric_rows.append(score_prompt_against_url(row[PROMPT_COLUMN], url))
+        write_output_file(input_df, metric_rows, output_file)
+        print(f"Saved progress after row {row_number}: {output_file}")
+
+    return pd.DataFrame(metric_rows, columns=SIMILARITY_COLUMNS)
 
 
 def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -1021,13 +828,13 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
         "Redirect Target",
         "Canonical Target",
         "Resolution Chain",
-        "referring_domains",
         "Address",
         "Missing Alt Image Count",
-        "page_similarity_mean",
-        "page_similarity_median",
-        "max_chunk_similarity_mean",
-        "max_chunk_similarity_median",
+        "page_similarity",
+        "max_chunk_similarity",
+        "max_chunk_content",
+        "avg_top_3_chunk_similarity",
+        "relevant_chunk_count",
         "embedding_similarity_warning",
         "embedding_similarity_error",
         *SEMANTIC_COLUMNS,
@@ -1041,24 +848,18 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
 
 
 def main() -> int:
-    for path in [SF_CLI, PAGE_ONLY_CONFIG, SEMANTICS_CONFIG, NO_RENDER_CONFIG]:
+    for path in [SF_CLI, PROMPT_SEMANTICS_CONFIG]:
         if not path.exists():
             raise FileNotFoundError(f"Required path does not exist: {path}")
 
     prepare_final_output_folder()
-    urls_df, fanout_queries_df, prompt_names_df = read_prompt_inputs()
-    prompt_jobs = list(iter_prompt_jobs(urls_df, fanout_queries_df, prompt_names_df))
-    if not prompt_jobs:
-        raise ValueError(f"No prompts found in {resolve_repo_relative_path(URLS_CSV)}")
 
-    semrush_driver = build_logged_in_semrush_driver()
-    try:
-        for prompt_job in prompt_jobs:
-            process_prompt(prompt_job, semrush_driver)
-    finally:
-        if semrush_driver is not None:
-            semrush_driver.quit()
+    input_df = read_input_urls()
+    output_file = get_timestamped_output_file()
+    metrics_df = build_similarity_metrics(input_df, output_file)
+    write_output_file(input_df, metrics_df.to_dict("records"), output_file)
 
+    print(f"Saved master prompt similarity file: {output_file}")
     return 0
 
 

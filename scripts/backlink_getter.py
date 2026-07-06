@@ -1,5 +1,7 @@
+import os
 import re
 import time
+from pathlib import Path
 from urllib.parse import quote, urlsplit
 
 from selenium import webdriver
@@ -12,9 +14,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
+ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
 LOGIN_URL = "https://www.semrush.com/login/"
-USERNAME = "lbousada@birchhillequity.com"
-PASSWORD = "kM#3UvjS#4JRCHjY"
+SEMRUSH_USERNAME_ENV = "SEMRUSH_USERNAME"
+SEMRUSH_PASSWORD_ENV = "SEMRUSH_PASSWORD"
+SEMRUSH_USERNAME = ""
+SEMRUSH_PASSWORD = ""
 ANALYZED_URL = "https://www.coursecompare.ca/best-online-mba-canada"
 SEMRUSH_BACKLINKS_URL = "https://www.semrush.com/analytics/backlinks/overview/"
 SEARCH_TYPE = "subfolder"
@@ -23,6 +28,30 @@ WAIT_SECONDS_ON_TARGET_PAGE = 5
 REFERRING_DOMAINS_COUNT_SELECTOR = (
     '[data-test-flag2-item="domains"] [data-test-flag2-value] [data-ui-name="Link.Text"]'
 )
+
+
+def load_env_file(path: Path = ENV_FILE) -> None:
+    if not path.exists():
+        return
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+
+        key, value = stripped.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+def load_semrush_credentials() -> None:
+    global SEMRUSH_USERNAME, SEMRUSH_PASSWORD
+
+    load_env_file()
+    SEMRUSH_USERNAME = os.environ.get(SEMRUSH_USERNAME_ENV, "").strip()
+    SEMRUSH_PASSWORD = os.environ.get(SEMRUSH_PASSWORD_ENV, "").strip()
+
+
+load_semrush_credentials()
 
 
 def build_target_url(analyzed_url: str) -> str:
@@ -66,8 +95,8 @@ def get_login_form(driver: WebDriver) -> tuple[WebElement, WebElement] | None:
 
 
 def login(driver: WebDriver) -> None:
-    if not USERNAME or not PASSWORD:
-        raise ValueError("Set USERNAME and PASSWORD at the top of this script before running.")
+    if not SEMRUSH_USERNAME or not SEMRUSH_PASSWORD:
+        raise ValueError("Set SEMRUSH_USERNAME and SEMRUSH_PASSWORD in .env before running.")
 
     wait = WebDriverWait(driver, 20)
     driver.get(LOGIN_URL)
@@ -82,9 +111,9 @@ def login(driver: WebDriver) -> None:
     email_input, password_input = login_form
 
     email_input.clear()
-    email_input.send_keys(USERNAME)
+    email_input.send_keys(SEMRUSH_USERNAME)
     password_input.clear()
-    password_input.send_keys(PASSWORD)
+    password_input.send_keys(SEMRUSH_PASSWORD)
 
     submit_button = wait.until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-test="login-page__btn-login"]'))

@@ -1,16 +1,17 @@
 # Screaming Frog Crawl Configurations
 
-This file documents three Screaming Frog SEO Spider configuration files:
+This file documents four Screaming Frog SEO Spider configuration files:
 
 - `cc_no_render.seospiderconfig`
 - `cc_page_only.seospiderconfig`
+- `cc_prompt_semantics.seospiderconfig`
 - `cc_semantics_crawl.seospiderconfig`
 
-The configs were re-parsed from disk on 2026-06-19. They are Java-serialized Screaming Frog SEO Spider `24.0` config files.
+The configs are Java-serialized Screaming Frog SEO Spider `24.0` config files. This document was updated on 2026-07-06 to include `cc_prompt_semantics.seospiderconfig`.
 
 ## Shared Defaults
 
-All three configs share these baseline settings:
+All four configs share these baseline settings:
 
 - Screaming Frog version: `24.0`
 - Robots handling: respect `robots.txt`
@@ -33,7 +34,7 @@ All three configs share these baseline settings:
   - Footer: `footer`
   - Content: `/`
 
-All three send these request headers:
+All four send these request headers:
 
 - `Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
 - `Accept-Encoding: gzip`
@@ -283,7 +284,7 @@ The `Passage Embeddings` custom JavaScript snippet chunks rendered page content 
 
 ### Security Note
 
-The `Passage Embeddings` JavaScript snippet contains an embedded OpenAI API key in the Screaming Frog configuration. Do not share this config file outside trusted users. If this file has been shared, treat the key as exposed and rotate it.
+The `Passage Embeddings` JavaScript snippet uses a dummy OpenAI key placeholder in the tracked Screaming Frog configuration. Keep real API keys in `.env` or inject them locally before running; do not commit exported configs that contain live keys.
 
 ### AI And Embeddings
 
@@ -295,6 +296,132 @@ The `Passage Embeddings` JavaScript snippet contains an embedded OpenAI API key 
 - Low relevance detection: disabled
 
 This config has OpenAI enabled, but Screaming Frog's native embeddings analysis is off. The important semantic behavior in this config comes from the custom `Passage Embeddings` JavaScript snippet, not the native embeddings feature.
+
+### Other Integrations
+
+Disabled:
+
+- GA4
+- Universal Analytics
+- Google Search Console
+- GSC URL Inspection
+- PageSpeed
+- Ahrefs
+- Majestic
+- Moz
+- Anthropic
+- Gemini
+- Ollama
+
+## `cc_prompt_semantics.seospiderconfig`
+
+### Plain-English Purpose
+
+This is the rendered prompt-semantics extraction profile. It renders only the input URL, does not crawl outlinks, and runs a custom `Passage Embeddings` JavaScript snippet against the rendered page.
+
+Use this when you want page-level semantic passage extraction for a specific prompt/page comparison workflow, not a site crawl.
+
+### Crawl Mode And Scope
+
+- Crawler mode: `RENDER`
+- JavaScript rendering: on
+- Crawl depth limit: enabled
+- Depth value: `0`
+- Crawl internal links: disabled
+- Store internal links: disabled
+- Crawl external links: disabled
+- Store external links: disabled
+- Check links outside the start folder: disabled
+- Crawl outside the start folder: disabled
+- Search all subdomains: disabled
+- Follow internal `nofollow`: disabled
+- Follow external `nofollow`: disabled
+
+This is intentionally the most constrained crawl profile. It can render the input page, but it is not configured to follow discovered links.
+
+### Resources Crawled And Stored
+
+Enabled:
+
+- JavaScript files as resources
+- Canonicals
+- Rendered HTML storage
+- JavaScript storage
+- Canonical storage
+
+Disabled:
+
+- Internal links
+- External links
+- Original HTML storage
+- CSS
+- Images
+- Iframes
+- Hreflang
+- XML sitemaps
+- Meta refresh
+- PDFs
+- SWF
+- Media files
+- AMP HTML links
+- Mobile alternate links
+- `rel="next"` / `rel="prev"`
+
+### SEO Extraction
+
+Most standard SEO extraction is disabled:
+
+- Page titles
+- Meta descriptions
+- Meta keywords
+- Meta robots
+- X-Robots-Tag
+- H1
+- H2
+- Word count
+- Text-to-code ratio
+- Response time
+- Page size
+- Last modified
+- PDF metadata
+- PDF link text
+- Cookies
+- Readability
+- JSON-LD extraction
+- Microdata extraction
+- RDFa extraction
+
+Still enabled:
+
+- Indexability extraction
+- Form extraction
+- Google structured data validation
+- Schema.org validation
+
+### Custom JavaScript Checks
+
+This config contains `1` custom JavaScript snippet:
+
+- Passage Embeddings
+
+The snippet chunks rendered page content into semantic passages and calls OpenAI's embeddings API from inside the rendered page context.
+
+### Security Note
+
+The `Passage Embeddings` JavaScript snippet uses a dummy OpenAI key placeholder in the tracked Screaming Frog configuration. Keep real API keys in `.env` or inject them locally before running; do not commit exported configs that contain live keys.
+
+### AI And Embeddings
+
+- OpenAI integration: enabled
+- OpenAI prompt count: `1`
+- Embedding provider: OpenAI
+- Screaming Frog embeddings feature: enabled
+- Cosine similarity: disabled
+- Low relevance detection: disabled
+- Cosine similarity threshold setting: `0.9`
+- Low relevance threshold setting: `0.4`
+
+The important semantic behavior in this config comes from the custom `Passage Embeddings` JavaScript snippet. Screaming Frog's embeddings feature is enabled, but similarity and low-relevance analysis are disabled.
 
 ### Other Integrations
 
@@ -427,11 +554,15 @@ Use `cc_no_render` when you need a broad technical SEO crawl without rendering. 
 
 Use `cc_page_only` when you need a rendered single-page or page-set audit with custom DOM checks. Keep depth at `0` for a page-only test, or raise the depth if you intentionally want it to crawl onward.
 
+Use `cc_prompt_semantics` when you need rendered passage embeddings for only the input page. It is the best fit for prompt-to-page semantic comparison where the script handles similarity scoring outside Screaming Frog.
+
 Use `cc_semantics_crawl` when you need rendered semantic analysis across the input page and one internal click level, with native Screaming Frog embeddings enabled and most normal SEO extraction turned off.
 
 ## Important Difference Summary
 
 `cc_no_render` and `cc_page_only` are broad SEO-style configs. They crawl resources, collect standard SEO fields, and allow broad folder/subdomain scope. Their main difference is rendering: `cc_no_render` is `STANDARD`, while `cc_page_only` is `RENDER` and adds custom JavaScript checks.
+
+`cc_prompt_semantics` is a rendered, page-only semantic extraction config. It does not crawl internal or external links, and its main output comes from the custom `Passage Embeddings` JavaScript snippet.
 
 `cc_semantics_crawl` is much leaner. It renders pages and follows internal links to depth `1`, but it intentionally disables most resource crawling and SEO extraction so the crawl is focused on rendered content and embeddings.
 
@@ -439,6 +570,7 @@ The depth settings are also different:
 
 - `cc_no_render`: depth limit enabled, value `0`
 - `cc_page_only`: depth limit enabled, value `0`
+- `cc_prompt_semantics`: depth limit enabled, value `0`
 - `cc_semantics_crawl`: depth limit enabled, value `1`
 
 If a config sees outlinks but does not crawl them, check both the crawl depth and the scope controls: outside-start-folder, all-subdomains, external-link crawling, and nofollow handling.
