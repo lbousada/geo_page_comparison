@@ -1,0 +1,1 @@
+const found =\r\n    document.querySelector(\'[itemprop=\"dateModified\"]\') ||\r\n    document.querySelector(\'meta[property=\"article:modified_time\"]\');\r\n\r\nreturn seoSpider.data(found ? 1 : 0);

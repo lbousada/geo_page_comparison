@@ -1,0 +1,1 @@
+const text = document.body.innerText;\r\n\r\nconst matches = text.match(\r\n    \/\\b(is defined as|means|refers to|definition of)\\b\/gi\r\n);\r\n\r\nreturn seoSpider.data(\r\n    matches ? matches.length : 0\r\n);

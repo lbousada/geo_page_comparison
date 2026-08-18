@@ -1,0 +1,1 @@
+const authorSelectors = [\r\n    \'[rel=\"author\"]\',\r\n    \'.author\',\r\n    \'.byline\',\r\n    \'[class*=\"author\"]\',\r\n    \'[itemprop=\"author\"]\'\r\n];\r\n\r\nconst found = authorSelectors.some(\r\n    selector => document.querySelector(selector)\r\n);\r\n\r\nreturn seoSpider.data(found ? 1 : 0);

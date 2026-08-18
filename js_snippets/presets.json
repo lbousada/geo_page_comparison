@@ -1,0 +1,236 @@
+[
+  {
+    "type": "EXTRACTION",
+    "javascript": "const authorSelectors \u003d [\\r\\n    \\\u0027[rel\u003d\\\"author\\\"]\\\u0027,\\r\\n    \\\u0027.author\\\u0027,\\r\\n    \\\u0027.byline\\\u0027,\\r\\n    \\\u0027[class*\u003d\\\"author\\\"]\\\u0027,\\r\\n    \\\u0027[itemprop\u003d\\\"author\\\"]\\\u0027\\r\\n];\\r\\n\\r\\nconst found \u003d authorSelectors.some(\\r\\n    selector \u003d\u003e document.querySelector(selector)\\r\\n);\\r\\n\\r\\nreturn seoSpider.data(found ? 1 : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Contains Author",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const text \u003d document.body.innerText.toLowerCase();\\r\\n\\r\\nconst matches \u003d [\\r\\n    \\\u0027methodology\\\u0027,\\r\\n    \\\u0027our methodology\\\u0027,\\r\\n    \\\u0027research methodology\\\u0027,\\r\\n    \\\u0027how we tested\\\u0027,\\r\\n    \\\u0027how we collected\\\u0027,\\r\\n    \\\u0027data collection\\\u0027,\\r\\n    \\\u0027method\\\u0027,\\r\\n    \\\u0027research process\\\u0027\\r\\n];\\r\\n\\r\\nreturn seoSpider.data(\\r\\n    matches.some(term \u003d\u003e text.includes(term)) ? 1 : 0\\r\\n);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Contains Methodology",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const found \u003d\\r\\n    document.querySelector(\\\u0027time\\\u0027) ||\\r\\n    document.querySelector(\\\u0027[itemprop\u003d\\\"datePublished\\\"]\\\u0027) ||\\r\\n    document.querySelector(\\\u0027meta[property\u003d\\\"article:published_time\\\"]\\\u0027);\\r\\n\\r\\nreturn seoSpider.data(found ? 1 : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Contains Published Date",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const found \u003d\\r\\n    document.querySelector(\\\u0027[itemprop\u003d\\\"dateModified\\\"]\\\u0027) ||\\r\\n    document.querySelector(\\\u0027meta[property\u003d\\\"article:modified_time\\\"]\\\u0027);\\r\\n\\r\\nreturn seoSpider.data(found ? 1 : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Contains Updated Date",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const html \u003d document.documentElement.innerHTML;\\r\\n\\r\\nconst matches \u003d html.match(\\/\\\"@type\\\"\\\\s*:\\\\s*\\\"?Article\\\"?\\/gi);\\r\\n\\r\\nreturn seoSpider.data(matches ? matches.length : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Article Schema",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027article\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Article Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const html \u003d document.documentElement.innerHTML;\\r\\n\\r\\nconst matches \u003d html.match(\\/\\\"@type\\\"\\\\s*:\\\\s*\\\"?BreadcrumbList\\\"?\\/gi);\\r\\n\\r\\nreturn seoSpider.data(matches ? matches.length : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count BreadcrumbList",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(\\r\\n    document.querySelectorAll(\\\u0027ul li, ol li\\\u0027).length\\r\\n);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Bullets",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const text \u003d document.body.innerText;\\r\\n\\r\\nconst matches \u003d text.match(\\r\\n    \\/\\\\b(is defined as|means|refers to|definition of)\\\\b\\/gi\\r\\n);\\r\\n\\r\\nreturn seoSpider.data(\\r\\n    matches ? matches.length : 0\\r\\n);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Definition",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const questions \u003d [...document.querySelectorAll(\\\u0027h1,h2,h3,h4,h5,h6,p,strong\\\u0027)]\\r\\n    .filter(el \u003d\u003e el.innerText.trim().endsWith(\\\u0027?\\\u0027));\\r\\n\\r\\nreturn seoSpider.data(questions.length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count FAQ",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const html \u003d document.documentElement.innerHTML;\\r\\n\\r\\nconst matches \u003d html.match(\\/\\\"@type\\\"\\\\s*:\\\\s*\\\"?FAQPage\\\"?\\/gi);\\r\\n\\r\\nreturn seoSpider.data(matches ? matches.length : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count FAQ Schema",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027footer\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Footer Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027h1\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count H1",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027h2\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count H2",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027h3\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count H3",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027header\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Header Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027main\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Main Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027nav\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Nav Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const html \u003d document.documentElement.innerHTML;\\r\\n\\r\\nconst matches \u003d html.match(\\/\\\"@type\\\"\\\\s*:\\\\s*\\\"?Organization\\\"?\\/gi);\\r\\n\\r\\nreturn seoSpider.data(matches ? matches.length : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Org Schema",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const html \u003d document.documentElement.innerHTML;\\r\\n\\r\\nconst matches \u003d html.match(\\/\\\"@type\\\"\\\\s*:\\\\s*\\\"?Product\\\"?\\/gi);\\r\\n\\r\\nreturn seoSpider.data(matches ? matches.length : 0);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Product Schema",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027section\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Section Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(\\r\\n    document.querySelectorAll(\\\u0027table\\\u0027).length\\r\\n);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Table",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "return seoSpider.data(document.querySelectorAll(\\\u0027*\\\u0027).length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Count Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const missingAltImages \u003d [...document.querySelectorAll(\\\u0027img\\\u0027)]\\r\\n    .filter(img \u003d\u003e {\\r\\n        const alt \u003d img.getAttribute(\\\u0027alt\\\u0027);\\r\\n        return alt \u003d\u003d\u003d null || alt.trim() \u003d\u003d\u003d \\\u0027\\\u0027;\\r\\n    });\\r\\n\\r\\nreturn seoSpider.data(missingAltImages.length);",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Missing Image Alt Tags",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "\\/\\/ Enhanced Screaming Frog Recipe: Semantic Chunking + Open Source Embeddings\\n\\/\\/\\n\\/\\/ This script breaks webpage content into semantic passages (paragraphs, headings,\\n\\/\\/ list items, etc.) and embeds each chunk using sentence-transformers\\/all-MiniLM-L6-v2,\\n\\/\\/ a high-performing open-source model that ranks well on MTEB benchmarks.\\n\\/\\/\\n\\/\\/ SETUP REQUIRED:\\n\\/\\/ 1. Get a free Hugging Face token from: https:\\/\\/huggingface.co\\/settings\\/tokens\\n\\/\\/ 2. Replace \\\u0027your_hf_token_here\\\u0027 below with your actual token\\n\\/\\/ 3. The token will be stored in your SEO Spider configuration - be mindful when sharing\\n\\/\\/\\n\\/\\/ MODEL INFO:\\n\\/\\/ - Model: sentence-transformers\\/all-MiniLM-L6-v2 (384 dimensions)\\n\\/\\/ - MTEB Performance: Strong performer among lightweight models (69.6% on MTEB)\\n\\/\\/ - Cost: Free via Hugging Face Inference API (with rate limits)\\n\\/\\/ - Context Length: Up to 512 tokens\\n\\/\\/\\n\\/\\/ Uses the official Hugging Face Inference JS client\\n\\/\\/\\n\\n\\/\\/ Import the HfInference class from the CDN version of the package\\n\\/\\/ This is necessary since we\\\u0027re running in a browser environment without module bundling\\nconst HF_TOKEN \u003d \\\u0027your_hf_token_here\\\u0027;\\nconst MODEL_NAME \u003d \\\u0027sentence-transformers\\/all-MiniLM-L6-v2\\\u0027;\\n\\n\\/\\/ Create a class to mimic the HfInference client functionality using the correct router API endpoint\\nclass HfInferenceClient {\\n  constructor(token) {\\n    this.token \u003d token;\\n  }\\n\\n  async featureExtraction(options) {\\n    \\/\\/ For feature extraction (embeddings), we need to use the feature-extraction pipeline\\n    \\/\\/ We\\\u0027ll use the direct endpoint for feature-extraction as shown in the HF examples\\n    const url \u003d `https:\\/\\/router.huggingface.co\\/hf-inference\\/models\\/${options.model}\\/pipeline\\/feature-extraction`;\\n    \\n    \\/\\/ For sentence-transformers models, we need to send each text as a separate request\\n    if (Array.isArray(options.inputs)) {\\n      \\/\\/ Process each input separately and return an array of embeddings\\n      const promises \u003d options.inputs.map(text \u003d\u003e this.getSingleEmbedding(url, text));\\n      return Promise.all(promises);\\n    } else {\\n      \\/\\/ Single input\\n      return this.getSingleEmbedding(url, options.inputs);\\n    }\\n  }\\n  \\n  async getSingleEmbedding(url, text) {\\n    \\/\\/ Using the correct request format for feature-extraction\\n    const response \u003d await fetch(url, {\\n      method: \\\u0027POST\\\u0027,\\n      headers: {\\n        Authorization: `Bearer ${this.token}`,\\n        \\\u0027Content-Type\\\u0027: \\\u0027application\\/json\\\u0027,\\n      },\\n      body: JSON.stringify({\\n        inputs: text,\\n      }),\\n    });\\n\\n    if (!response.ok) {\\n      const errorText \u003d await response.text();\\n      throw new Error(`Hugging Face API error (${response.status}): ${errorText}`);\\n    }\\n\\n    return response.json();\\n  }\\n}\\n\\n\\/\\/ Initialize the client\\nconst hfClient \u003d new HfInferenceClient(HF_TOKEN);\\n\\n\\/\\/ Configuration\\nconst CONFIG \u003d {\\n  minChunkLength: 50, \\/\\/ Minimum characters per chunk\\n  maxChunkLength: 500, \\/\\/ Maximum characters per chunk (reduced for smaller model)\\n  includeMetadata: true, \\/\\/ Include element type and position info\\n  batchSize: 5, \\/\\/ Number of chunks to process in parallel\\n  retryAttempts: 3, \\/\\/ Retry failed requests\\n  retryDelay: 1000, \\/\\/ Delay between retries (ms)\\n};\\n\\n\\/**\\n * Extract semantic passages from the webpage DOM\\n * @returns {Array} Array of chunk objects with text and metadata\\n *\\/\\nfunction extractSemanticChunks() {\\n  const chunks \u003d [];\\n  let chunkIndex \u003d 0;\\n\\n  \\/\\/ Define semantic elements to extract\\n  const semanticSelectors \u003d [\\n    \\\u0027h1, h2, h3, h4, h5, h6\\\u0027, \\/\\/ Headings\\n    \\\u0027p\\\u0027, \\/\\/ Paragraphs\\n    \\\u0027li\\\u0027, \\/\\/ List items\\n    \\\u0027blockquote\\\u0027, \\/\\/ Quotes\\n    \\\u0027article\\\u0027, \\/\\/ Articles\\n    \\\u0027section\\\u0027, \\/\\/ Sections\\n    \\\u0027div[role\u003d\\\"main\\\"]\\\u0027, \\/\\/ Main content areas\\n    \\\u0027td, th\\\u0027, \\/\\/ Table cells\\n    \\\u0027figcaption\\\u0027, \\/\\/ Figure captions\\n    \\\u0027summary\\\u0027, \\/\\/ Summary elements\\n    \\\u0027dd\\\u0027, \\/\\/ Definition descriptions\\n  ];\\n\\n  semanticSelectors.forEach((selector) \u003d\u003e {\\n    const elements \u003d document.querySelectorAll(selector);\\n\\n    elements.forEach((element, index) \u003d\u003e {\\n      const text \u003d element.textContent?.trim();\\n\\n      if (text \u0026\u0026 text.length \u003e\u003d CONFIG.minChunkLength) {\\n        \\/\\/ Split long chunks while preserving sentence boundaries\\n        const textChunks \u003d splitLongText(text, CONFIG.maxChunkLength);\\n\\n        textChunks.forEach((chunkText, subIndex) \u003d\u003e {\\n          const chunk \u003d {\\n            text: chunkText,\\n            index: chunkIndex++,\\n            metadata: CONFIG.includeMetadata\\n              ? {\\n                  elementType: element.tagName.toLowerCase(),\\n                  elementIndex: index,\\n                  subChunkIndex: subIndex,\\n                  totalSubChunks: textChunks.length,\\n                  xpath: getXPath(element),\\n                  textLength: chunkText.length,\\n                }\\n              : null,\\n          };\\n\\n          chunks.push(chunk);\\n        });\\n      }\\n    });\\n  });\\n\\n  \\/\\/ Fallback: if no semantic elements found, chunk the body text\\n  if (chunks.length \u003d\u003d\u003d 0) {\\n    const bodyText \u003d document.body.textContent?.trim();\\n    if (bodyText) {\\n      const textChunks \u003d splitLongText(bodyText, CONFIG.maxChunkLength);\\n      textChunks.forEach((chunkText, index) \u003d\u003e {\\n        chunks.push({\\n          text: chunkText,\\n          index: index,\\n          metadata: CONFIG.includeMetadata\\n            ? {\\n                elementType: \\\u0027body\\\u0027,\\n                elementIndex: 0,\\n                subChunkIndex: index,\\n                totalSubChunks: textChunks.length,\\n                xpath: \\\u0027\\/html\\/body\\\u0027,\\n                textLength: chunkText.length,\\n              }\\n            : null,\\n        });\\n      });\\n    }\\n  }\\n\\n  return chunks;\\n}\\n\\n\\/**\\n * Split long text into smaller chunks while preserving sentence boundaries\\n * @param {string} text - Text to split\\n * @param {number} maxLength - Maximum length per chunk\\n * @returns {Array} Array of text chunks\\n *\\/\\nfunction splitLongText(text, maxLength) {\\n  if (text.length \u003c\u003d maxLength) {\\n    return [text];\\n  }\\n\\n  const chunks \u003d [];\\n  const sentences \u003d text.split(\\/(?\u003c\u003d[.!?])\\\\s+\\/);\\n  let currentChunk \u003d \\\u0027\\\u0027;\\n\\n  for (const sentence of sentences) {\\n    if ((currentChunk + sentence).length \u003c\u003d maxLength) {\\n      currentChunk +\u003d (currentChunk ? \\\u0027 \\\u0027 : \\\u0027\\\u0027) + sentence;\\n    } else {\\n      if (currentChunk) {\\n        chunks.push(currentChunk);\\n        currentChunk \u003d sentence;\\n      } else {\\n        \\/\\/ Handle very long sentences by splitting on word boundaries\\n        const words \u003d sentence.split(\\\u0027 \\\u0027);\\n        let wordChunk \u003d \\\u0027\\\u0027;\\n\\n        for (const word of words) {\\n          if ((wordChunk + word).length \u003c\u003d maxLength) {\\n            wordChunk +\u003d (wordChunk ? \\\u0027 \\\u0027 : \\\u0027\\\u0027) + word;\\n          } else {\\n            if (wordChunk) chunks.push(wordChunk);\\n            wordChunk \u003d word;\\n          }\\n        }\\n        if (wordChunk) currentChunk \u003d wordChunk;\\n      }\\n    }\\n  }\\n\\n  if (currentChunk) {\\n    chunks.push(currentChunk);\\n  }\\n\\n  return chunks.filter((chunk) \u003d\u003e chunk.length \u003e\u003d CONFIG.minChunkLength);\\n}\\n\\n\\/**\\n * Get XPath for an element\\n * @param {Element} element - DOM element\\n * @returns {string} XPath string\\n *\\/\\nfunction getXPath(element) {\\n  if (element.id) {\\n    return `\\/\\/*[@id\u003d\\\"${element.id}\\\"]`;\\n  }\\n\\n  const parts \u003d [];\\n  while (element \u0026\u0026 element.nodeType \u003d\u003d\u003d Node.ELEMENT_NODE) {\\n    let index \u003d 0;\\n    let sibling \u003d element.previousSibling;\\n\\n    while (sibling) {\\n      if (sibling.nodeType \u003d\u003d\u003d Node.ELEMENT_NODE \u0026\u0026 sibling.tagName \u003d\u003d\u003d element.tagName) {\\n        index++;\\n      }\\n      sibling \u003d sibling.previousSibling;\\n    }\\n\\n    const tagName \u003d element.tagName.toLowerCase();\\n    const pathIndex \u003d index \u003e 0 ? `[${index + 1}]` : \\\u0027\\\u0027;\\n    parts.unshift(`${tagName}${pathIndex}`);\\n\\n    element \u003d element.parentNode;\\n  }\\n\\n  return parts.length ? `\\/${parts.join(\\\u0027\\/\\\u0027)}` : \\\u0027\\\u0027;\\n}\\n\\n\\/**\\n * Get embeddings for an array of texts using the HF client\\n *\\/\\nasync function getEmbeddings(texts) {\\n  try {\\n    return await hfClient.featureExtraction({\\n      model: MODEL_NAME,\\n      inputs: texts,\\n      options: {\\n        wait_for_model: true,\\n        use_cache: true\\n      }\\n    });\\n  } catch (error) {\\n    throw new Error(`Hugging Face API error: ${error.message}`);\\n  }\\n}\\n\\n\\/**\\n * Process chunks in batches with retry logic\\n * @param {Array} chunks - Array of chunk objects\\n * @returns {Promise} Promise resolving to embedded chunks\\n *\\/\\nasync function processChunksWithRetry(chunks) {\\n  const results \u003d [];\\n\\n  \\/\\/ Process in batches\\n  for (let i \u003d 0; i \u003c chunks.length; i +\u003d CONFIG.batchSize) {\\n    const batch \u003d chunks.slice(i, i + CONFIG.batchSize);\\n    const texts \u003d batch.map((chunk) \u003d\u003e chunk.text);\\n\\n    let attempt \u003d 0;\\n    let embeddings \u003d null;\\n\\n    while (attempt \u003c CONFIG.retryAttempts \u0026\u0026 !embeddings) {\\n      try {\\n        embeddings \u003d await getEmbeddings(texts);\\n\\n        \\/\\/ Combine chunks with their embeddings\\n        batch.forEach((chunk, index) \u003d\u003e {\\n          results.push({\\n            ...chunk,\\n            embedding: embeddings[index],\\n            embeddingModel: MODEL_NAME,\\n            processingTimestamp: new Date().toISOString(),\\n          });\\n        });\\n      } catch (error) {\\n        attempt++;\\n        console.warn(`Batch ${Math.floor(i \\/ CONFIG.batchSize) + 1} attempt ${attempt} failed:`, error.message);\\n\\n        if (attempt \u003c CONFIG.retryAttempts) {\\n          await new Promise((resolve) \u003d\u003e setTimeout(resolve, CONFIG.retryDelay * attempt));\\n        } else {\\n          \\/\\/ Add chunks without embeddings as fallback\\n          batch.forEach((chunk) \u003d\u003e {\\n            results.push({\\n              ...chunk,\\n              embedding: null,\\n              error: error.message,\\n              embeddingModel: MODEL_NAME,\\n              processingTimestamp: new Date().toISOString(),\\n            });\\n          });\\n        }\\n      }\\n    }\\n  }\\n\\n  return results;\\n}\\n\\n\\/**\\n * Main processing function\\n * @returns {Promise} Promise resolving to processing results\\n *\\/\\nasync function processPageEmbeddings() {\\n  try {\\n    \\/\\/ Validate configuration\\n    if (HF_TOKEN \u003d\u003d\u003d \\\u0027your_hf_token_here\\\u0027) {\\n      throw new Error(\\\u0027Please set your Hugging Face token in the HF_TOKEN variable\\\u0027);\\n    }\\n\\n    \\/\\/ Extract semantic chunks\\n    console.log(\\\u0027Extracting semantic chunks from webpage...\\\u0027);\\n    const chunks \u003d extractSemanticChunks();\\n    console.log(`Extracted ${chunks.length} semantic chunks`);\\n\\n    if (chunks.length \u003d\u003d\u003d 0) {\\n      throw new Error(\\\u0027No content chunks found on the page\\\u0027);\\n    }\\n\\n    \\/\\/ Process embeddings\\n    console.log(`Processing embeddings using ${MODEL_NAME}...`);\\n    const embeddedChunks \u003d await processChunksWithRetry(chunks);\\n\\n    \\/\\/ Generate summary statistics\\n    const successfulEmbeddings \u003d embeddedChunks.filter((chunk) \u003d\u003e chunk.embedding !\u003d\u003d null).length;\\n    const failedEmbeddings \u003d embeddedChunks.length - successfulEmbeddings;\\n\\n    const result \u003d {\\n      success: true,\\n      model: MODEL_NAME,\\n      totalChunks: embeddedChunks.length,\\n      successfulEmbeddings,\\n      failedEmbeddings,\\n      processingTimestamp: new Date().toISOString(),\\n      pageUrl: window.location.href,\\n      pageTitle: document.title,\\n      chunks: embeddedChunks,\\n      summary: {\\n        avgChunkLength: Math.round(embeddedChunks.reduce((sum, chunk) \u003d\u003e sum + chunk.text.length, 0) \\/ embeddedChunks.length),\\n        elementTypes: [...new Set(embeddedChunks.map((chunk) \u003d\u003e chunk.metadata?.elementType).filter(Boolean))],\\n        embeddingDimensions: embeddedChunks.find((chunk) \u003d\u003e chunk.embedding)?.embedding?.length || null,\\n      },\\n    };\\n\\n    console.log(`Processing complete: ${successfulEmbeddings}\\/${embeddedChunks.length} chunks embedded successfully`);\\n    return result;\\n  } catch (error) {\\n    console.error(\\\u0027Processing failed:\\\u0027, error);\\n    return {\\n      success: false,\\n      error: error.message,\\n      model: MODEL_NAME,\\n      processingTimestamp: new Date().toISOString(),\\n      pageUrl: window.location.href,\\n      pageTitle: document.title,\\n    };\\n  }\\n}\\n\\n\\/\\/ Execute the main function and return results to Screaming Frog\\nreturn processPageEmbeddings()\\n  .then((result) \u003d\u003e seoSpider.data(JSON.stringify(result, null, 2)))\\n  .catch((error) \u003d\u003e seoSpider.error(`Script execution failed: ${error.message}`));",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Passage Embeddings",
+    "comments": ""
+  },
+  {
+    "type": "EXTRACTION",
+    "javascript": "const paragraphs \u003d [...document.querySelectorAll(\\\u0027p\\\u0027)];\\r\\n\\r\\nif (!paragraphs.length) {\\r\\n    return seoSpider.data(0);\\r\\n}\\r\\n\\r\\nconst totalWords \u003d paragraphs.reduce((sum, p) \u003d\u003e {\\r\\n    const words \u003d p.innerText\\r\\n        .trim()\\r\\n        .split(\\/\\\\s+\\/)\\r\\n        .filter(Boolean);\\r\\n\\r\\n    return sum + words.length;\\r\\n}, 0);\\r\\n\\r\\nconst avgWords \u003d totalWords \\/ paragraphs.length;\\r\\n\\r\\nreturn seoSpider.data(avgWords.toFixed(2));",
+    "actionTimeoutSecs": 1,
+    "contentTypes": "text/html",
+    "version": 3,
+    "name": "Words per Paragraph",
+    "comments": ""
+  }
+]

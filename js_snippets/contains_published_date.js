@@ -1,0 +1,1 @@
+const found =\r\n    document.querySelector(\'time\') ||\r\n    document.querySelector(\'[itemprop=\"datePublished\"]\') ||\r\n    document.querySelector(\'meta[property=\"article:published_time\"]\');\r\n\r\nreturn seoSpider.data(found ? 1 : 0);

@@ -1,0 +1,1 @@
+const missingAltImages = [...document.querySelectorAll(\'img\')]\r\n    .filter(img => {\r\n        const alt = img.getAttribute(\'alt\');\r\n        return alt === null || alt.trim() === \'\';\r\n    });\r\n\r\nreturn seoSpider.data(missingAltImages.length);
