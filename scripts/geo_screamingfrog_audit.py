@@ -44,6 +44,7 @@ SF_CLI = Path(
 CRAWL_CONFIG_DIR = REPO_ROOT / "crawl_configs"
 PAGE_ONLY_CONFIG = CRAWL_CONFIG_DIR / "cc_page_only.seospiderconfig"
 SEMANTICS_CONFIG = CRAWL_CONFIG_DIR / "cc_semantics_crawl.seospiderconfig"
+PROMPT_SEMANTICS_CONFIG = CRAWL_CONFIG_DIR / "cc_prompt_semantics.seospiderconfig"
 NO_RENDER_CONFIG = CRAWL_CONFIG_DIR / "cc_no_render.seospiderconfig"
 SF_USER_DATA_DIR = Path(r"C:\Users\lbousada\.ScreamingFrogSEOSpider")
 SF_PROJECT_INSTANCE_DATA = SF_USER_DATA_DIR / "ProjectInstanceData"
@@ -51,10 +52,11 @@ SF_PROJECT_INSTANCE_DATA = SF_USER_DATA_DIR / "ProjectInstanceData"
 OUTPUT_DIR = Path(r"C:\Users\lbousada\OneDrive - BHEP\Desktop\GEO\GEO Levers Data")
 OUTPUT_FILE_PREFIX = "geo_screamingfrog_audit"
 URLS_CSV = Path("raw_inputs/Losing_URLs - Sample.csv")
-FANOUT_QUERIES_CSV = Path("raw_inputs/Fanout_Queries - Sample.csv")
+FANOUT_QUERIES_CSV = Path("raw_inputs/Fanout_Queries - Master.csv")
 PROMPT_NAMES_CSV = Path("raw_inputs/Prompt_Names.csv")
 ENV_FILE = REPO_ROOT / ".env"
 EMBEDDING_MODEL = "text-embedding-3-small"
+PROMPT_RELEVANT_CHUNK_THRESHOLD = 0.75
 PROMPT_COLUMN = "prompt"
 PROMPT_ID_COLUMN = "promt_id"
 URL_COLUMN = "url"
@@ -62,13 +64,22 @@ FANOUT_PROMPT_COLUMN = "Prompt"
 QUERY_COLUMN = "Query"
 PROMPT_NAME_COLUMN = "Prompt No"
 PROMPT_NAME_CONTENT_COLUMN = "content"
+PROMPT_SIMILARITY_COLUMNS = [
+    "prompt_page_similarity",
+    "prompt_max_chunk_similarity",
+    "prompt_max_chunk_content",
+    "prompt_avg_top_3_chunk_similarity",
+    "prompt_relevant_chunk_count",
+    "prompt_embedding_similarity_warning",
+    "prompt_embedding_similarity_error",
+]
 
 SEMANTIC_COLUMNS = [
     "Extract embeddings from page content",
-    "Closest Semantically Similar Address",
-    "Semantic Similarity Score",
-    "No. Semantically Similar",
     "Semantic Relevance Score",
+]
+PROMPT_SEMANTICS_COLUMNS = [
+    "Passage Embeddings 1",
 ]
 REDIRECT_COLUMNS = [
     "Redirect URL",
@@ -88,7 +99,7 @@ DUPLICATE_TITLE_COLUMNS = [
 # Verify exact Screaming Frog export tab names if exports fail:
 # "C:\Program Files (x86)\Screaming Frog SEO Spider\ScreamingFrogSEOSpiderCli.exe" --help export-tabs
 PAGE_ONLY_EXPORT_TABS = "Internal:All"
-SEMANTICS_EXPORT_TABS = "Internal:All,Content:Semantically Similar"
+SEMANTICS_EXPORT_TABS = "Internal:All"
 NO_RENDER_EXPORT_TABS = "Internal:All"
 CRAWL_TIMEOUT_SECONDS = 1800
 MAX_PAGE_ONLY_RESOLUTION_CRAWLS = 3
@@ -380,6 +391,13 @@ def cosineSimilarity(a: list[float], b: list[float]) -> float:
 def extractChunkEmbeddings(
     passageEmbeddingsField: object,
 ) -> tuple[list[list[float]], list[str]]:
+    chunk_records, warnings = extractChunkEmbeddingRecords(passageEmbeddingsField)
+    return [embedding for embedding, _ in chunk_records], warnings
+
+
+def extractChunkEmbeddingRecords(
+    passageEmbeddingsField: object,
+) -> tuple[list[tuple[list[float], str]], list[str]]:
     warnings: list[str] = []
     if is_blank(passageEmbeddingsField):
         return [], ["Passage Embeddings 1 is missing."]
@@ -398,14 +416,17 @@ def extractChunkEmbeddings(
     if not isinstance(chunks, list):
         raise ValueError("Passage Embeddings 1 does not contain a chunks array.")
 
-    chunk_embeddings: list[list[float]] = []
+    chunk_embeddings: list[tuple[list[float], str]] = []
     for index, chunk in enumerate(chunks):
         if not isinstance(chunk, dict):
             warnings.append(f"Chunk {index} is not an object.")
             continue
 
         try:
-            chunk_embeddings.append(parseEmbedding(chunk.get("embedding")))
+            chunk_text = ""
+            if not is_blank(chunk.get("text")):
+                chunk_text = str(chunk.get("text")).strip()
+            chunk_embeddings.append((parseEmbedding(chunk.get("embedding")), chunk_text))
         except ValueError as exc:
             warnings.append(f"Chunk {index} embedding invalid: {exc}")
 
@@ -419,6 +440,94 @@ def summarize_scores(scores: list[float]) -> tuple[float | object, float | objec
     if not scores:
         return pd.NA, pd.NA
     return mean(scores), median(scores)
+
+
+def scorePageAgainstPrompt(
+    promptEmbedding: list[float],
+    page: dict[str, object],
+) -> dict[str, object]:
+    scores: dict[str, object] = {
+        "prompt_page_similarity": pd.NA,
+        "prompt_max_chunk_similarity": pd.NA,
+        "prompt_max_chunk_content": pd.NA,
+        "prompt_avg_top_3_chunk_similarity": pd.NA,
+        "prompt_relevant_chunk_count": pd.NA,
+        "prompt_embedding_similarity_warning": pd.NA,
+        "prompt_embedding_similarity_error": pd.NA,
+    }
+    warnings: list[str] = []
+
+    try:
+        page_embedding = parseEmbedding(
+            get_first_existing_value(page, ["Extract embeddings from page content"])
+        )
+        scores["prompt_page_similarity"] = cosineSimilarity(
+            promptEmbedding,
+            page_embedding,
+        )
+    except ValueError as exc:
+        warnings.append(f"Page embedding invalid: {exc}")
+
+    try:
+        chunk_embeddings, chunk_warnings = extractChunkEmbeddingRecords(
+            get_first_existing_value(page, ["Passage Embeddings 1"])
+        )
+        warnings.extend(chunk_warnings)
+
+        chunk_similarities = sorted(
+            (
+                (cosineSimilarity(promptEmbedding, chunk_embedding), chunk_text)
+                for chunk_embedding, chunk_text in chunk_embeddings
+            ),
+            key=lambda item: item[0],
+            reverse=True,
+        )
+        if chunk_similarities:
+            top_3 = [similarity for similarity, _ in chunk_similarities[:3]]
+            scores["prompt_max_chunk_similarity"] = chunk_similarities[0][0]
+            scores["prompt_max_chunk_content"] = chunk_similarities[0][1] or pd.NA
+            scores["prompt_avg_top_3_chunk_similarity"] = sum(top_3) / len(top_3)
+            scores["prompt_relevant_chunk_count"] = sum(
+                similarity >= PROMPT_RELEVANT_CHUNK_THRESHOLD
+                for similarity, _ in chunk_similarities
+            )
+        elif chunk_warnings:
+            scores["prompt_embedding_similarity_error"] = " | ".join(chunk_warnings)
+    except ValueError as exc:
+        warnings.append(f"Chunk embeddings invalid: {exc}")
+        scores["prompt_embedding_similarity_error"] = str(exc)
+
+    if warnings:
+        scores["prompt_embedding_similarity_warning"] = " | ".join(warnings)
+
+    return scores
+
+
+def scorePagesAgainstPrompt(
+    promptEmbedding: list[float],
+    pages: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    scored_pages: list[dict[str, object]] = []
+
+    for page in pages:
+        scored_page = dict(page)
+        try:
+            scored_page.update(scorePageAgainstPrompt(promptEmbedding, page))
+        except Exception as exc:
+            scored_page.update(
+                {
+                    "prompt_page_similarity": pd.NA,
+                    "prompt_max_chunk_similarity": pd.NA,
+                    "prompt_max_chunk_content": pd.NA,
+                    "prompt_avg_top_3_chunk_similarity": pd.NA,
+                    "prompt_relevant_chunk_count": pd.NA,
+                    "prompt_embedding_similarity_warning": pd.NA,
+                    "prompt_embedding_similarity_error": str(exc),
+                }
+            )
+        scored_pages.append(scored_page)
+
+    return scored_pages
 
 
 def scorePageAgainstQueries(
@@ -467,8 +576,11 @@ def scorePageAgainstQueries(
         chunk_mean, chunk_median = summarize_scores(max_chunk_similarities)
         scores["max_chunk_similarity_mean"] = chunk_mean
         scores["max_chunk_similarity_median"] = chunk_median
+        if not max_chunk_similarities and chunk_warnings:
+            scores["embedding_similarity_error"] = " | ".join(chunk_warnings)
     except ValueError as exc:
         warnings.append(f"Chunk embeddings invalid: {exc}")
+        scores["embedding_similarity_error"] = str(exc)
 
     if warnings:
         scores["embedding_similarity_warning"] = " | ".join(warnings)
@@ -581,13 +693,19 @@ def single_row_dict(dataframe: pd.DataFrame) -> dict[str, object]:
 def merge_page_semantics_and_no_render(
     page_df: pd.DataFrame,
     semantics_df: pd.DataFrame,
+    prompt_semantics_df: pd.DataFrame,
     no_render_df: pd.DataFrame,
     resolved_url: str,
 ) -> dict[str, object]:
-    columns_to_drop = [*SEMANTIC_COLUMNS, *DUPLICATE_TITLE_COLUMNS]
+    columns_to_drop = [
+        *SEMANTIC_COLUMNS,
+        *PROMPT_SEMANTICS_COLUMNS,
+        *DUPLICATE_TITLE_COLUMNS,
+    ]
     page_without_semantics = drop_columns_case_insensitive(page_df, columns_to_drop)
     merged = single_row_dict(page_without_semantics)
     merged.update(extract_semantic_metrics(semantics_df, resolved_url))
+    merged.update(extract_prompt_semantics_metrics(prompt_semantics_df, resolved_url))
     merged.update(extract_no_render_word_count(no_render_df, resolved_url))
 
     return merged
@@ -601,6 +719,19 @@ def extract_semantic_metrics(
     metrics: dict[str, object] = {}
     for column in SEMANTIC_COLUMNS:
         metrics[column] = get_first_existing_value(semantic_row, [column])
+    return metrics
+
+
+def extract_prompt_semantics_metrics(
+    prompt_semantic_internal_df: pd.DataFrame,
+    resolved_url: str,
+) -> dict[str, object]:
+    prompt_semantic_row = single_row_dict(
+        find_row_by_url(prompt_semantic_internal_df, resolved_url)
+    )
+    metrics: dict[str, object] = {}
+    for column in PROMPT_SEMANTICS_COLUMNS:
+        metrics[column] = get_first_existing_value(prompt_semantic_row, [column])
     return metrics
 
 
@@ -874,6 +1005,7 @@ def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             semantics_output = tmp_path / "semantics"
+            prompt_semantics_output = tmp_path / "prompt_semantics"
             no_render_output = tmp_path / "no_render"
 
             page_internal_df, resolution = resolve_page_only_chain(url, tmp_path)
@@ -888,6 +1020,15 @@ def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]
             )
             semantics_internal_df = load_internal_export(semantics_output)
 
+            print(f"Running Prompt Semantics crawl for {resolved_url}")
+            run_sf_crawl(
+                resolved_url,
+                PROMPT_SEMANTICS_CONFIG,
+                prompt_semantics_output,
+                PAGE_ONLY_EXPORT_TABS,
+            )
+            prompt_semantics_internal_df = load_internal_export(prompt_semantics_output)
+
             print(f"Running Rendering Off crawl for {resolved_url}")
             run_sf_crawl(
                 resolved_url,
@@ -900,6 +1041,7 @@ def process_url(url: str, semrush_driver: WebDriver | None) -> dict[str, object]
             merged = merge_page_semantics_and_no_render(
                 page_internal_df,
                 semantics_internal_df,
+                prompt_semantics_internal_df,
                 no_render_internal_df,
                 resolved_url,
             )
@@ -957,6 +1099,21 @@ def mark_embedding_error(
     return rows
 
 
+def mark_prompt_similarity_error(
+    rows: list[dict[str, object]],
+    error: str,
+) -> list[dict[str, object]]:
+    for row in rows:
+        row["prompt_page_similarity"] = pd.NA
+        row["prompt_max_chunk_similarity"] = pd.NA
+        row["prompt_max_chunk_content"] = pd.NA
+        row["prompt_avg_top_3_chunk_similarity"] = pd.NA
+        row["prompt_relevant_chunk_count"] = pd.NA
+        row["prompt_embedding_similarity_warning"] = pd.NA
+        row["prompt_embedding_similarity_error"] = error
+    return rows
+
+
 def print_prompt_preview(
     prompt_index: int,
     prompt_name: str,
@@ -1003,6 +1160,12 @@ def process_prompt(
     else:
         scored_rows = mark_embedding_error(rows, "No fanout queries found for prompt.")
 
+    try:
+        prompt_embedding = get_query_embeddings([prompt])[0]
+        scored_rows = scorePagesAgainstPrompt(prompt_embedding, scored_rows)
+    except Exception as exc:
+        scored_rows = mark_prompt_similarity_error(scored_rows, str(exc))
+
     final_df = order_columns(pd.DataFrame(scored_rows))
     output_file = get_timestamped_output_file(prompt_name)
 
@@ -1036,12 +1199,25 @@ def order_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
         "Warning",
     ]
     existing_first = [column for column in preferred_first if column in dataframe.columns]
-    remaining = [column for column in dataframe.columns if column not in existing_first]
-    return dataframe.loc[:, existing_first + remaining]
+    existing_last = [
+        column for column in PROMPT_SIMILARITY_COLUMNS if column in dataframe.columns
+    ]
+    remaining = [
+        column
+        for column in dataframe.columns
+        if column not in existing_first and column not in existing_last
+    ]
+    return dataframe.loc[:, existing_first + remaining + existing_last]
 
 
 def main() -> int:
-    for path in [SF_CLI, PAGE_ONLY_CONFIG, SEMANTICS_CONFIG, NO_RENDER_CONFIG]:
+    for path in [
+        SF_CLI,
+        PAGE_ONLY_CONFIG,
+        SEMANTICS_CONFIG,
+        PROMPT_SEMANTICS_CONFIG,
+        NO_RENDER_CONFIG,
+    ]:
         if not path.exists():
             raise FileNotFoundError(f"Required path does not exist: {path}")
 
